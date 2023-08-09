@@ -26,4 +26,11 @@ public class LetterController {
         letterSendService.writeLetter(user.getUser(), letterReq);
         return ResponseEntity.ok("편지 발송에 성공했습니다.");
     }
+
+    // 이메일 전송 테스트
+    // @PostMapping("/send-email")
+    // public ResponseEntity<String> sendEmail(@CurrentUser UserPrincipal user) {
+    //     letterSendService.sendEmailToReceiver(user.getEmail());
+    //     return ResponseEntity.ok("이메일 발송에 성공했습니다.");
+    // }
 }

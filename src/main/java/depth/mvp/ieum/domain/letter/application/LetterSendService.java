@@ -3,10 +3,12 @@ package depth.mvp.ieum.domain.letter.application;
 import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.LetterReq;
+import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
@@ -16,14 +18,17 @@ public class LetterSendService {
 
     private final LetterRepository letterRepository;
     private final UserRepository userRepository;
+    private final MailService mailService;
 
     @Autowired
-    public LetterSendService(LetterRepository letterRepository, UserRepository userRepository) {
+    public LetterSendService(LetterRepository letterRepository, UserRepository userRepository, MailService mailService) {
         this.letterRepository = letterRepository;
         this.userRepository = userRepository;
+        this.mailService = mailService;
     }
 
-    // 편지 작성
+    // 편지 작성 및 수신자에게 이메일 발송
+    @Transactional
     public void writeLetter(User sender, LetterReq letterReq) {
         User receiver = getRandomReceiver(sender);
 
@@ -37,9 +42,14 @@ public class LetterSendService {
                 .build();
 
         letterRepository.save(letter);
+        sendEmailToReceiver(receiver.getEmail());
 
     }
-    // 편지 발송 시 이메일 전송
+
+    // 이메일 전송
+    private void sendEmailToReceiver(String email) {
+        mailService.sendEmailToReceiver(email);
+    }
 
     // 편지 발송 시 수신인 랜덤 지정
     private User getRandomReceiver(User sender) {
