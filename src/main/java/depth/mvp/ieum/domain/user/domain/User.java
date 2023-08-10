@@ -45,5 +45,7 @@ public class User extends BaseEntity {
     private List<Letter> receivedLetters;
 
     // update 메서드
-
+    public void updatePassword(String password) {
+        this.password = password;
+    }
 }

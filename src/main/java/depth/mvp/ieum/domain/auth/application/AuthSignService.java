@@ -102,4 +102,21 @@ public class AuthSignService {
 
         tokenRepository.delete(token.get());
     }
+
+    /**
+     * 비밀번호 재설정
+     * @param changePwReq 비밀번호 재설정 request DTO
+     */
+    @Transactional
+    public void changePassword(ChangePwReq changePwReq) {
+
+        Optional<User> user = userRepository.findByEmail(changePwReq.getEmail());
+        DefaultAssert.isTrue(user.isPresent(), "해당 이메일을 가지고 있는 유저가 없습니다.");
+        User findUser = user.get();
+
+        DefaultAssert.isTrue(changePwReq.getNewPassword().equals(changePwReq.getRenewPassword()), "비밀번호를 다시 확인해주세요.");
+
+        // 새로운 비밀번호 인코딩해서 업데이트
+        findUser.updatePassword(passwordEncoder.encode(changePwReq.getNewPassword()));
+    }
 }

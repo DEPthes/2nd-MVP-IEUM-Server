@@ -65,7 +65,7 @@ public class AuthSignController {
     @PostMapping("/sign-out")
     public ResponseEntity<?> signOut(
             @CurrentUser UserPrincipal userPrincipal,
-            @Valid @RequestBody RefreshTokenReq refreshTokenReq){
+            @Valid @RequestBody RefreshTokenReq refreshTokenReq) {
 
         authSignService.signOut(refreshTokenReq);
 
@@ -77,4 +77,18 @@ public class AuthSignController {
         return ResponseEntity.ok(apiResponse);
     }
 
+    // 비밀번호 재설정
+    @PatchMapping("/password")
+    public ResponseEntity<?> changePassword(
+            @Valid @RequestBody ChangePwReq changePwReq) {
+
+        authSignService.changePassword(changePwReq);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("비밀번호가 변경되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 }
