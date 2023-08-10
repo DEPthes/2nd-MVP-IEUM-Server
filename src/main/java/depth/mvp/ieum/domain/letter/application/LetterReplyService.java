@@ -24,10 +24,15 @@ public class LetterReplyService {
     @Transactional
     public Letter replyLetter(UserPrincipal userPrincipal, LetterReplyReq letterReplyReq) {
         User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));;
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
         Letter originalLetter = letterRepository.findById(letterReplyReq.getOriginalLetterId())
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
+
+        // originalLetter의 receiver랑 user랑 같은지 확인하는 프로세스 필요
+        if (!originalLetter.getReceiver().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("원본 편지의 수신자와 현재 사용자가 다릅니다.");  // 적절한 문구 필요
+        }
 
         // 편지 정보에서 발신인 id를 찾아 수신인으로 설정
         User receiver = userRepository.findById(originalLetter.getSender().getId())
