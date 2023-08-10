@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 @Slf4j
@@ -42,19 +43,16 @@ public class ChatGptService {
         // gpt 역할 설정 (content 수정 예정)
         messages.add(ChatGptMessage.builder()
                 .role("system")
-                .content("당신은 제가 요청한 대답에 미사여구 없이 답변만 해줍니다. 빠르게 답변해주세요.")
+                .content(ChatGptConfig.settingForNickname)
                 .build());
-
-        // 현재 DB에 있는 유저들의 닉네임들을 조회해서 String에 담는다.
-        String nicknameReqest = findNicknameList();
 
         // 실제 요청 (content 수정 예정)
         messages.add(ChatGptMessage.builder()
                 .role(ChatGptConfig.ROLE)  // "user"
-                .content("익명 서비스에서 쓰일 귀여운 닉네임을 다섯 개 추천해줘./n+" +
-                        "단, " + nicknameReqest + "는 제외하고 알려줘.")
+                .content(createQuestionForNicknmae())
                 .build());
 
+        log.info(messages.toString());
         ChatGptRes chatGptRes = this.getResponse(
                 this.buildHttpEntity(
                         new ChatGptReq(
@@ -70,16 +68,7 @@ public class ChatGptService {
 
         String response = chatGptRes.getChoices().get(0).getMessage().getContent();
 
-        // 정규식을 사용하여 띄어쓰기를 기준으로 구별하여 리스트에 추가
-        List<String> listRes = new ArrayList<>();
-        String[] words = response.split("\\s");
-        for (String word : words) {
-            if (word.matches("[가-힣]+")) {
-                listRes.add(word);
-            }
-        }
-
-        return RecommendRes.builder().nickname(listRes).build();
+        return RecommendRes.builder().nickname(createPrettyResponseForNickname(response)).build();
     }
 
     /**
@@ -93,6 +82,37 @@ public class ChatGptService {
             nicknameList.add(user.getNickname());
         }
         return String.join(", ", nicknameList);
+    }
+
+    // 닉네임 추천 질문 만들기 메서드
+    public String createQuestionForNicknmae() {
+        // 현재 DB에 있는 유저들의 닉네임들을 조회해서 String에 담는다.
+        String nicknameList = findNicknameList();
+        String nicknameReqest = nicknameList.length() != 0 ? nicknameList+"은 제외하고 추천해줘." : "";
+        // 질문 만들기
+        String question = getRandomQuestion(ChatGptConfig.nicknameQuestion1, ChatGptConfig.nicknameQuestion2, ChatGptConfig.nicknameQuestion3);
+        question += nicknameReqest;
+        return question;
+    }
+
+    // 랜덤 질문 생성 메서드
+    public static String getRandomQuestion(String... questions) {
+        Random random = new Random();
+        int randomIndex = random.nextInt(questions.length);
+        return questions[randomIndex];
+    }
+
+    // 프론트로 응답 주기 전 데이터를 정제하기 위한 메서드
+    public List<String> createPrettyResponseForNickname(String response) {
+        // 정규식을 사용하여 띄어쓰기를 기준으로 구별하여 리스트에 추가
+        List<String> listRes = new ArrayList<>();
+        String[] words = response.split("\\s");
+        for (String word : words) {
+            if (word.matches("[가-힣]+")) {
+                listRes.add(word);
+            }
+        }
+        return listRes;
     }
 
     // api 호출에 필요한 Http Header를 만드는 메서드
@@ -121,35 +141,4 @@ public class ChatGptService {
 
         return responseEntity.getBody();
     }
-
-    // 테스트 api입니다. 추후 삭제 예정입니다.
-    public ChatGptRes askQuestion(QuestionReq questionRequest){
-
-        List<ChatGptMessage> messages = new ArrayList<>();
-        // gpt 역할 설정
-        messages.add(ChatGptMessage.builder()
-                .role("system")
-                .content("당신은 감정적인 공감을 잘 하는 상담 전문가입니다. 20대 여성처럼 친근하게 답변해주세요.")
-                .build());
-
-        messages.add(ChatGptMessage.builder()
-                .role(ChatGptConfig.ROLE)  // "user"
-                .content(questionRequest.getQuestion())
-                .build());
-
-        return this.getResponse(
-                this.buildHttpEntity(
-                        new ChatGptReq(
-                                ChatGptConfig.CHAT_MODEL,
-                                ChatGptConfig.MAX_TOKEN,
-                                ChatGptConfig.TEMPERATURE,
-                                ChatGptConfig.STREAM,
-                                messages,
-                                ChatGptConfig.TOP_P
-                        )
-                )
-        );
-    }
-
-
 }

@@ -20,7 +20,7 @@ public class AuthCheckController {
     private final ChatGptService chatGptService;
 
     // 이메일 중복 체크
-    @GetMapping("/email-check/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<?> emailCheck(
             @PathVariable(value = "email") String email) {
 
@@ -37,7 +37,7 @@ public class AuthCheckController {
     }
 
     // 닉네임 중복 체크
-    @GetMapping("/nickname-check/{nickname}")
+    @GetMapping("/nickname/{nickname}")
     public ResponseEntity<?> nicknameCheck(
             @PathVariable(value = "nickname") String nickname) {
 
@@ -54,7 +54,7 @@ public class AuthCheckController {
     }
 
     // 닉네임 추천 받기
-    @GetMapping("/recommend")
+    @GetMapping("/nickname")
     public ResponseEntity<?> recommendNickname() {
 
         ApiResponse apiResponse = ApiResponse.builder()
