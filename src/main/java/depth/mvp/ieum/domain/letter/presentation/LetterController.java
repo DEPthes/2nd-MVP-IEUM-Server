@@ -1,9 +1,9 @@
 package depth.mvp.ieum.domain.letter.presentation;
 
+import depth.mvp.ieum.domain.letter.application.LetterReplyService;
 import depth.mvp.ieum.domain.letter.application.LetterSendService;
-import depth.mvp.ieum.domain.letter.domain.Letter;
-import depth.mvp.ieum.domain.letter.dto.LetterReq;
-import depth.mvp.ieum.domain.user.domain.User;
+import depth.mvp.ieum.domain.letter.dto.LetterReplyReq;
+import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import jakarta.validation.Valid;
@@ -20,12 +20,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class LetterController {
 
     private final LetterSendService letterSendService;
+    private final LetterReplyService letterReplyService;
 
     @PostMapping("/send")
-    public ResponseEntity<String> writeLetter(@CurrentUser UserPrincipal user, @Valid @RequestBody LetterReq letterReq) {
+    public ResponseEntity<String> writeLetter(@CurrentUser UserPrincipal user, @Valid @RequestBody LetterSendReq letterReq) {
         letterSendService.writeLetter(user.getUser(), letterReq);
         return ResponseEntity.ok("편지 발송에 성공했습니다.");
     }
+
+    @PostMapping("/reply")
+    public ResponseEntity<String> replyLetter(@CurrentUser UserPrincipal user, @Valid @RequestBody LetterReplyReq letterReplyReq) {
+        letterReplyService.replyLetter(user.getUser(), letterReplyReq);
+        return ResponseEntity.ok("편지 발송에 성공했습니다.");
+    }
+
 
     // 이메일 전송 테스트
     // @PostMapping("/send-email")
