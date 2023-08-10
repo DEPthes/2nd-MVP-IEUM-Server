@@ -46,11 +46,4 @@ public class User extends BaseEntity {
 
     // update 메서드
 
-    public User(Long id, String nickname, String email, String password, Role role) {
-        this.id = id;
-        this.nickname = nickname;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
 }

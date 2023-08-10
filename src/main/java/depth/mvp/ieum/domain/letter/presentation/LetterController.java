@@ -2,10 +2,13 @@ package depth.mvp.ieum.domain.letter.presentation;
 
 import depth.mvp.ieum.domain.letter.application.LetterReplyService;
 import depth.mvp.ieum.domain.letter.application.LetterSendService;
+import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.dto.LetterReplyReq;
+import depth.mvp.ieum.domain.letter.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
+import depth.mvp.ieum.global.payload.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +26,49 @@ public class LetterController {
     private final LetterReplyService letterReplyService;
 
     @PostMapping("/send")
-    public ResponseEntity<String> writeLetter(@CurrentUser UserPrincipal user, @Valid @RequestBody LetterSendReq letterReq) {
-        letterSendService.writeLetter(user.getUser(), letterReq);
-        return ResponseEntity.ok("편지 발송에 성공했습니다.");
+    public ResponseEntity<?> writeLetter(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody LetterSendReq letterReq) {
+
+        Letter letter = letterSendService.writeLetter(userPrincipal, letterReq);
+
+        LetterRes letterRes = LetterRes.builder()
+                .id(letter.getId())
+                .title(letter.getTitle())
+                .contents(letter.getContents())
+                .envelopType(letter.getEnvelopType())
+                .isRead(letter.isRead())
+                .receiverId(letter.getReceiver().getId())
+                .senderId(letter.getSender().getId())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(letterRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
     @PostMapping("/reply")
-    public ResponseEntity<String> replyLetter(@CurrentUser UserPrincipal user, @Valid @RequestBody LetterReplyReq letterReplyReq) {
-        letterReplyService.replyLetter(user.getUser(), letterReplyReq);
-        return ResponseEntity.ok("편지 발송에 성공했습니다.");
+    public ResponseEntity<?> replyLetter(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody LetterReplyReq letterReplyReq) {
+
+        Letter letter = letterReplyService.replyLetter(userPrincipal, letterReplyReq);
+
+        LetterRes letterSendRes = LetterRes.builder()
+                .id(letter.getId())
+                .title(letter.getTitle())
+                .contents(letter.getContents())
+                .envelopType(letter.getEnvelopType())
+                .isRead(letter.isRead())
+                .receiverId(letter.getReceiver().getId())
+                .senderId(letter.getSender().getId())
+                .build();
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(letterSendRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 
 

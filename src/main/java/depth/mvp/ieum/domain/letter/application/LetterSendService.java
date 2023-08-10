@@ -6,13 +6,15 @@ import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
 import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import depth.mvp.ieum.global.config.security.token.UserPrincipal;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Random;
 
+@RequiredArgsConstructor
 @Service
 public class LetterSendService {
 
@@ -20,20 +22,15 @@ public class LetterSendService {
     private final UserRepository userRepository;
     private final MailService mailService;
 
-    @Autowired
-    public LetterSendService(LetterRepository letterRepository, UserRepository userRepository, MailService mailService) {
-        this.letterRepository = letterRepository;
-        this.userRepository = userRepository;
-        this.mailService = mailService;
-    }
-
-    // 편지 작성 및 수신자에게 이메일 발송
+    // 편지 작성
     @Transactional
-    public void writeLetter(User sender, LetterSendReq letterReq) {
-        User receiver = getRandomReceiver(sender);
+    public Letter writeLetter(UserPrincipal userPrincipal, LetterSendReq letterReq) {
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow();
+        User receiver = getRandomReceiver(user);
 
         Letter letter = Letter.builder()
-                .sender(sender)
+                .sender(user)
                 .receiver(receiver)
                 .title(letterReq.getTitle())
                 .contents(letterReq.getContents())
@@ -42,11 +39,13 @@ public class LetterSendService {
                 .build();
 
         letterRepository.save(letter);
+        // 수신인에게 메일 발송
         sendEmailToReceiver(receiver.getEmail());
 
+        return letter;
     }
 
-    // 이메일 전송
+    // 메일 전송 메소드
     protected void sendEmailToReceiver(String email) {
         mailService.sendEmailToReceiver(email);
     }
@@ -59,6 +58,5 @@ public class LetterSendService {
         return receivers.get(random.nextInt(receivers.size()));
     }
 
-    // 편지 발송 시 이미지 삽입 불가하게 막아두기
 
 }
