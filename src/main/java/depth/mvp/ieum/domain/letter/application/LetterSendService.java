@@ -2,7 +2,7 @@ package depth.mvp.ieum.domain.letter.application;
 
 import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
-import depth.mvp.ieum.domain.letter.dto.LetterReq;
+import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
 import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
@@ -29,7 +29,7 @@ public class LetterSendService {
 
     // 편지 작성 및 수신자에게 이메일 발송
     @Transactional
-    public void writeLetter(User sender, LetterReq letterReq) {
+    public void writeLetter(User sender, LetterSendReq letterReq) {
         User receiver = getRandomReceiver(sender);
 
         Letter letter = Letter.builder()
@@ -47,7 +47,7 @@ public class LetterSendService {
     }
 
     // 이메일 전송
-    private void sendEmailToReceiver(String email) {
+    protected void sendEmailToReceiver(String email) {
         mailService.sendEmailToReceiver(email);
     }
 

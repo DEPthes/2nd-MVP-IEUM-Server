@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LetterReq {
+public class LetterSendReq {
 
     @NotBlank
     private String title;
