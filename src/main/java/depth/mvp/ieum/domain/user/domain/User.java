@@ -1,16 +1,17 @@
 package depth.mvp.ieum.domain.user.domain;
 
 import depth.mvp.ieum.domain.common.BaseEntity;
+import depth.mvp.ieum.domain.letter.domain.Letter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
+
+import java.util.List;
 
 @Entity
 @Builder
@@ -37,6 +38,11 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(mappedBy = "sender")
+    private List<Letter> sentLetters;
+
+    @OneToMany(mappedBy = "receiver")
+    private List<Letter> receivedLetters;
 
     // update 메서드
 
