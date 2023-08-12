@@ -62,4 +62,19 @@ public class MailService {
         log.info(codeBuilder.toString());
         return codeBuilder.toString();
     }
+
+    public void sendEmailToReceiver(String email) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setTo(email);
+        message.setFrom("depth.ieum@gmail.com");
+        message.setSubject("[이:음] 편지가 도착했습니다.");
+        message.setText(String.format("안녕하세요. 이:음입니다.\n" +
+                "\n" +
+                "익명으로 마음을 전하는 랜덤 익명 편지 서비스, 이:음 이용해 주셔서 감사합니다.\n" +
+                "\n" +
+                "편지가 도착했습니다. 우체통을 확인해주세요!.\n"));
+
+        mailSender.send(message);
+    }
 }

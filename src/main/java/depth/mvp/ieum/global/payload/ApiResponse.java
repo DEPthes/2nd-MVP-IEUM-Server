@@ -21,8 +21,4 @@ public class ApiResponse {
         this.check = check;
         this.information = information;
     }
-
-    public static ApiResponse makeResponse() {
-
-    }
 }

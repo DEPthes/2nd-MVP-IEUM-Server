@@ -45,7 +45,7 @@ public class UserPrincipal implements OAuth2User, UserDetails{
     public void setAttributes(Map<String, Object> attributes) {
         this.attributes = attributes;
     }
-    
+
     public Long getId() {
         return id;
     }
