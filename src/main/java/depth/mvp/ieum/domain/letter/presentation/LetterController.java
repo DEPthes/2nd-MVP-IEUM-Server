@@ -1,8 +1,10 @@
 package depth.mvp.ieum.domain.letter.presentation;
 
+import depth.mvp.ieum.domain.letter.application.MailBoxService;
 import depth.mvp.ieum.domain.letter.application.LetterReplyService;
 import depth.mvp.ieum.domain.letter.application.LetterSendService;
 import depth.mvp.ieum.domain.letter.domain.Letter;
+import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
 import depth.mvp.ieum.domain.letter.dto.LetterReplyReq;
 import depth.mvp.ieum.domain.letter.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
@@ -12,10 +14,9 @@ import depth.mvp.ieum.global.payload.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -24,6 +25,7 @@ public class LetterController {
 
     private final LetterSendService letterSendService;
     private final LetterReplyService letterReplyService;
+    private final MailBoxService letterBoxService;
 
     @PostMapping("/send")
     public ResponseEntity<?> writeLetter(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody LetterSendReq letterReq) {
@@ -70,7 +72,6 @@ public class LetterController {
 
         return ResponseEntity.ok(apiResponse);
     }
-
 
     // 이메일 전송 테스트
     // @PostMapping("/send-email")
