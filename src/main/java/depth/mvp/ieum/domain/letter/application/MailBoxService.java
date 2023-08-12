@@ -59,20 +59,21 @@ public class MailBoxService {
         return readMailBoxes;
     }
 
-    // 편지 상세 보기(상세보기 클릭 시에 수신 여부 1로 변경)
-    //public Letter getLetterDetails(Long userId, Long letterId) {
-    //    Letter letter = letterRepository.findById(letterId)
-    //            .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
+    // 편지 상세 보기(읽음 여부 true 변경)
+    public Letter getLetterDetails(Long userId, Long letterId) {
+        Letter letter = letterRepository.findById(letterId)
+                .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
 
         // originalLetter의 receiver와 user가 동일한지 확인하는 로직
-    //    if (!letter.getReceiver().getId().equals(userId)) {
-    //        throw new IllegalArgumentException("원본 편지의 수신자와 현재 사용자가 다릅니다.");
-    //    }
+        if (!letter.getReceiver().getId().equals(userId)) {
+            throw new IllegalArgumentException("원본 편지의 수신자와 현재 사용자가 다릅니다.");
+        }
 
-    //    letter.setIsRead(true);
+        letter.setIsRead(true);
+        letterRepository.save(letter);
 
-    //    return letter;
-    //}
+        return letter;
+    }
 
 
 }

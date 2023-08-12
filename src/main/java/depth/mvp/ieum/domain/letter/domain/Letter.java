@@ -44,7 +44,7 @@ public class Letter extends BaseEntity {
     private User receiver;
 
 
-    //public void setIsRead(boolean isRead) {
-    //    this.isRead = isRead;
-    //}
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
+    }
 }

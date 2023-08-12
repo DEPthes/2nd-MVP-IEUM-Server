@@ -50,26 +50,26 @@ public class MailBoxController {
         return ResponseEntity.ok(apiResponse);
     }
 
-    //@GetMapping("/{id}")
-    //public ResponseEntity<?> getLetterDetails(@CurrentUser UserPrincipal userPrincipal,
-    //                                          @PathVariable Long id) {
-    //    Long userId = userPrincipal.getId();
-    //    Letter letter = mailBoxService.getLetterDetails(userId, id);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getLetterDetails(@CurrentUser UserPrincipal userPrincipal,
+                                              @PathVariable Long id) {
+        Long userId = userPrincipal.getId();
+        Letter letter = mailBoxService.getLetterDetails(userId, id);
 
-    //    MailBoxDetailsRes mailBoxDetailsRes = MailBoxDetailsRes.builder()
-    //            .letterId(letter.getId())
-    //            .senderNickname(letter.getSender().getNickname())
-    //            .title(letter.getTitle())
-    //            .contents(letter.getContents())
-    //            .envelopType(letter.getEnvelopType())
-    //            .isRead(letter.isRead())
-    //            .build();
+        MailBoxDetailsRes mailBoxDetailsRes = MailBoxDetailsRes.builder()
+                .letterId(letter.getId())
+                .senderNickname(letter.getSender().getNickname())
+                .title(letter.getTitle())
+                .contents(letter.getContents())
+                .envelopType(letter.getEnvelopType())
+                .isRead(letter.isRead())
+                .build();
 
-    //    ApiResponse apiResponse = ApiResponse.builder()
-    //            .check(true)
-    //            .information(mailBoxDetailsRes)
-    //            .build();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(mailBoxDetailsRes)
+                .build();
 
-    //    return ResponseEntity.ok(apiResponse);
-    //}
+        return ResponseEntity.ok(apiResponse);
+    }
 }
