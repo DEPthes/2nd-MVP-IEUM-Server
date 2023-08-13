@@ -57,9 +57,7 @@ public class LetterService {
 
     // 편지 수신인 지정
     private User getReceiver(User user, Long letterId) {
-        // 편지 신규 작성
         if (letterId == null) { return getRandomReceiver(user); }
-        // 편지 답장
         Letter originalLetter = letterRepository.findById(letterId)
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
 

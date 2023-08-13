@@ -9,14 +9,15 @@ import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
 import depth.mvp.ieum.domain.letter.dto.TempLetterRes;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
-import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -61,7 +62,7 @@ public class TempLetterService {
                 newTempLetters.add(tempLetterRes);
             }
         }
-        return newTempLetters;
+        return sortByLatestDate(newTempLetters);
 
     }
 
@@ -77,7 +78,7 @@ public class TempLetterService {
                 replyTempLetters.add(tempLetterRes);
             }
         }
-        return replyTempLetters;
+        return sortByLatestDate(replyTempLetters);
     }
 
     // 임시저장 불러오기
@@ -109,6 +110,18 @@ public class TempLetterService {
         if (!originalLetter.getReceiver().getId().equals(user.getId())) {
             throw new IllegalArgumentException("원본 편지의 수신자와 현재 사용자가 다릅니다.");
         }
+    }
+
+    public List<TempLetterRes> sortByLatestDate(List<TempLetterRes> tempLetterRes) {
+        if (tempLetterRes == null || tempLetterRes.isEmpty()) {
+            return new ArrayList<>();
+        }
+        Comparator<TempLetterRes> byLatestDate = Comparator.comparing(TempLetterRes::getModifiedAt).reversed();
+        List<TempLetterRes> sortedTempLetterRes = tempLetterRes.stream()
+                .sorted(byLatestDate)
+                .collect(Collectors.toList());
+
+        return sortedTempLetterRes;
     }
 
     private LetterRes convertLetterToLetterRes(Letter letter){
