@@ -1,5 +1,6 @@
 package depth.mvp.ieum.domain.letter.dto;
 
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -18,7 +19,7 @@ public class LetterSendReq {
 
     @NotBlank(message = "내용을 입력해야 합니다.")
     @Size(max = 3500, message = "내용은 최대 3500자까지 입력 가능합니다.")
-    @Pattern(regexp = "^(?!.*<img).*", message = "이미지 삽입은 허용되지 않습니다.")
+    @Lob
     private String contents;
 
     private int envelopType;

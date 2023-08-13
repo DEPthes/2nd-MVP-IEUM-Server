@@ -28,12 +28,11 @@ public class ChatGptReq implements Serializable {
 
     @Builder
     public ChatGptReq(String model, Integer maxTokens, Double temperature,
-                          Boolean stream, List<ChatGptMessage> messages, Double topP) {
+                          Boolean stream, List<ChatGptMessage> messages) {
         this.model = model;
         this.maxTokens = maxTokens;
         this.temperature = temperature;
         this.stream = stream;
         this.messages = messages;
-        this.topP = topP;
     }
 }
