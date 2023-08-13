@@ -19,4 +19,5 @@ public class MailBoxDetailsRes {
 
     private boolean isRead;
 
+
 }
