@@ -2,11 +2,9 @@ package depth.mvp.ieum.domain.letter.presentation;
 
 import depth.mvp.ieum.domain.letter.application.LetterService;
 import depth.mvp.ieum.domain.letter.application.TempLetterService;
-import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.domain.letter.dto.TempLetterRes;
-import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import depth.mvp.ieum.global.payload.ApiResponse;
@@ -75,6 +73,20 @@ public class LetterController {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(tempLetterRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // 임시 저장된 편지 불러오기
+    @GetMapping("/temp/{letterId}")
+    public ResponseEntity<?> getTempLetter(@CurrentUser UserPrincipal userPrincipal,
+                                           @PathVariable Long letterId) {
+        LetterRes letterRes = tempLetterService.getTempLetter(letterId);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(letterRes)
                 .build();
 
         return ResponseEntity.ok(apiResponse);

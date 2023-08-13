@@ -51,4 +51,15 @@ public class Letter extends BaseEntity {
     public void setIsRead(boolean isRead) {
         this.isRead = isRead;
     }
+    public void updateTempLetterToLetter(Long id, String title, String contents, int envelopType,
+                                         boolean isRead, LetterType letterType, User sender, User receiver) {
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+        this.envelopType = envelopType;
+        this.isRead = isRead;
+        this.letterType = letterType;
+        this.sender = sender;
+        this.receiver = receiver;
+    }
 }

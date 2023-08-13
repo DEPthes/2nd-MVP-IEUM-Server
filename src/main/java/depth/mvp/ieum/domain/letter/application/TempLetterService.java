@@ -5,7 +5,6 @@ import depth.mvp.ieum.domain.letter.domain.LetterType;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.domain.letter.dto.LetterRes;
-import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
 import depth.mvp.ieum.domain.letter.dto.TempLetterRes;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
@@ -17,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -26,13 +26,12 @@ public class TempLetterService {
     private final UserRepository userRepository;
     private final LetterRepository letterRepository;
 
-    // 서비스만 나누고 컨트롤러는 letterController에
 
     @Transactional
     public LetterRes writeTempLetter(Long userId, LetterReq letterReq) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow();
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
         User receiver = getReceiver(user, letterReq.getOriginalLetterId());
 
         Letter letter = Letter.builder()
@@ -49,7 +48,7 @@ public class TempLetterService {
         return convertLetterToLetterRes(letter);
     }
 
-    // 임시저장 조회(답장/신규 구분)
+    // 임시저장 목록 조회(답장/신규 구분)
     // 신규 작성
     public List<TempLetterRes> getNewTempLetters(Long userId) {
         List<TempLetterRes> newTempLetters = new ArrayList<>();
@@ -81,7 +80,12 @@ public class TempLetterService {
         return sortByLatestDate(replyTempLetters);
     }
 
-    // 임시저장 불러오기
+    // 임시 저장된 편지 불러오기
+    public LetterRes getTempLetter(Long letterId) {
+        Letter letter = letterRepository.findById(letterId)
+                .orElseThrow(() -> new EntityNotFoundException("편지를 찾을 수 없습니다."));
+        return convertLetterToLetterRes(letter);
+    }
 
     private TempLetterRes createTempLetterRes(Letter letter) {
         return TempLetterRes.builder()

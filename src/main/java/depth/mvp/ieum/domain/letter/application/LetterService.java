@@ -8,7 +8,6 @@ import depth.mvp.ieum.domain.letter.dto.LetterRes;
 import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
-import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,25 +27,28 @@ public class LetterService {
     // 편지 작성
     @Transactional
     public LetterRes writeLetter(Long userId, LetterReq letterReq) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow();
-        // 편지가 신규 작성인지, 답장인지 구분해서 수신인 지정
-        User receiver = getReceiver(user, letterReq.getOriginalLetterId());
-
-        Letter letter = Letter.builder()
-                .sender(user)
-                .receiver(receiver)
-                .title(letterReq.getTitle())
-                .contents(letterReq.getContents())
-                .envelopType(letterReq.getEnvelopType())
-                .isRead(false)
-                .letterType(LetterType.SENT)
-                .build();
-
-        letterRepository.save(letter);
-        // 수신인에게 메일 발송
-        sendEmailToReceiver(receiver.getEmail());
+        User receiver;
+        Letter letter;
+        // 임시 저장된 편지인지 확인
+        if (letterReq.getLetterType() == LetterType.TEMP) {
+            letter = writeTempLetter(user, letterReq);
+        } else {
+            receiver = getReceiver(user, letterReq.getOriginalLetterId());
+            letter = Letter.builder()
+                    .sender(user)
+                    .receiver(receiver)
+                    .title(letterReq.getTitle())
+                    .contents(letterReq.getContents())
+                    .envelopType(letterReq.getEnvelopType())
+                    .isRead(false)
+                    .letterType(LetterType.SENT)
+                    .build();
+            letterRepository.save(letter);
+            // 수신인에게 메일 발송
+            sendEmailToReceiver(receiver.getEmail());
+        }
         return convertLetterToLetterRes(letter);
     }
 
@@ -75,6 +77,32 @@ public class LetterService {
         Random random = new Random();
         return receivers.get(random.nextInt(receivers.size()));
     }
+
+    // 임시 저장된 편지 발송
+    private Letter writeTempLetter(User user, LetterReq letterReq) {
+        Letter tempLetter = letterRepository.findById(letterReq.getLetterId())
+                .orElseThrow(() -> new EntityNotFoundException("편지를 찾을 수 없습니다."));
+        User receiver = tempLetter.getReceiver();
+
+        if (receiver == null) {
+            receiver = getReceiver(user, letterReq.getOriginalLetterId());
+        }
+        tempLetter.updateTempLetterToLetter(
+                tempLetter.getId(),
+                letterReq.getTitle(),
+                letterReq.getContents(),
+                letterReq.getEnvelopType(),
+                false,
+                LetterType.SENT,
+                user,
+                receiver
+        );
+        letterRepository.save(tempLetter);
+        sendEmailToReceiver(receiver.getEmail());
+
+        return tempLetter;
+    }
+
 
     // (편지 답장) 원본 편지의 수신인과 현재 사용자가 동일한지 확인
     private void validateOriginalLetterReceiver(Letter originalLetter, User user) {
