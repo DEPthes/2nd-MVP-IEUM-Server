@@ -1,6 +1,8 @@
 package depth.mvp.ieum.domain.gpt.application;
 
 import depth.mvp.ieum.domain.gpt.dto.*;
+import depth.mvp.ieum.domain.letter.domain.Letter;
+import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.config.ChatGptConfig;
@@ -28,7 +30,6 @@ public class ChatGptService {
     private RestTemplate restTemplate = new RestTemplate();
     private final UserRepository userRepository;
 
-    //api key를 application.yml에 넣어두었습니다.
     @Value(value = "${api-key.chat-gpt}")
     private String apiKey;
 
@@ -40,13 +41,13 @@ public class ChatGptService {
 
         List<ChatGptMessage> messages = new ArrayList<>();
 
-        // gpt 역할 설정 (content 수정 예정)
+        // gpt 역할 설정
         messages.add(ChatGptMessage.builder()
                 .role("system")
                 .content(ChatGptConfig.settingForNickname)
                 .build());
 
-        // 실제 요청 (content 수정 예정)
+        // 실제 요청
         messages.add(ChatGptMessage.builder()
                 .role(ChatGptConfig.ROLE)  // "user"
                 .content(createQuestionForNicknmae())
@@ -60,8 +61,7 @@ public class ChatGptService {
                                 ChatGptConfig.MAX_TOKEN,
                                 ChatGptConfig.TEMPERATURE,
                                 ChatGptConfig.STREAM,
-                                messages,
-                                ChatGptConfig.TOP_P
+                                messages
                         )
                 )
         );
@@ -69,6 +69,78 @@ public class ChatGptService {
         String response = chatGptRes.getChoices().get(0).getMessage().getContent();
 
         return RecommendRes.builder().nickname(createPrettyResponseForNickname(response)).build();
+    }
+
+    /**
+     * GPT에게 편지 전송
+     * @param letter 전송할 편지 객체
+     */
+    public LetterRes sendLetter(Letter letter) {
+
+        List<ChatGptMessage> messages = new ArrayList<>();
+
+        // gpt 역할 설정
+        messages.add(ChatGptMessage.builder()
+                .role("system")
+                .content(ChatGptConfig.settingForSendLetter)
+                .build());
+
+        // 실제 요청 (content 수정 예정)
+        messages.add(ChatGptMessage.builder()
+                .role(ChatGptConfig.ROLE)  // "user"
+                .content(ChatGptConfig.sendLetterQuestion + "\n" + letter.getTitle() + "\n" +letter.getContents())
+                .build());
+
+        log.info(messages.toString());
+        ChatGptRes chatGptRes = this.getResponse(
+                this.buildHttpEntity(
+                        new ChatGptReq(
+                                ChatGptConfig.CHAT_MODEL,
+                                ChatGptConfig.MAX_TOKEN_LETTER,
+                                ChatGptConfig.TEMPERATURE,
+                                ChatGptConfig.STREAM,
+                                messages
+                        )
+                )
+        );
+
+        String response = chatGptRes.getChoices().get(0).getMessage().getContent();
+
+        return LetterRes.builder().data(response).build();
+    }
+
+
+    // GPT를 통한 편지 검사
+    public String checkLetter(LetterCheckReq letterCheckReq) {
+
+        List<ChatGptMessage> messages = new ArrayList<>();
+
+        // gpt 역할 설정
+        messages.add(ChatGptMessage.builder()
+                .role("system")
+                .content(ChatGptConfig.settingForCheckLetter)
+                .build());
+
+        // 실제 요청 (content 수정 예정)
+        messages.add(ChatGptMessage.builder()
+                .role(ChatGptConfig.ROLE)  // "user"
+                .content(letterCheckReq.getTitle() + letterCheckReq.getContents())
+                .build());
+
+        log.info(messages.toString());
+        ChatGptRes chatGptRes = this.getResponse(
+                this.buildHttpEntity(
+                        new ChatGptReq(
+                                ChatGptConfig.CHAT_MODEL,
+                                ChatGptConfig.MAX_TOKEN,
+                                ChatGptConfig.TEMPERATURE_VALID,
+                                ChatGptConfig.STREAM,
+                                messages
+                        )
+                )
+        );
+
+        return chatGptRes.getChoices().get(0).getMessage().getContent();
     }
 
     /**
@@ -129,8 +201,8 @@ public class ChatGptService {
 
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         // 답변이 길어질 경우 TimeOut Error 발생하므로 time 설정
-        requestFactory.setConnectTimeout(60000);
-        requestFactory.setReadTimeout(60 * 1000);   //  1min = 60 sec * 1,000ms
+        requestFactory.setConnectTimeout(180000);
+        requestFactory.setReadTimeout(180000);   //  3min
 
         restTemplate.setRequestFactory(requestFactory);
 
