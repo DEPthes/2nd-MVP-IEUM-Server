@@ -26,8 +26,7 @@ public class MailBoxController {
 
     @GetMapping
     public ResponseEntity<?> getUnreadLetters(@CurrentUser UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getId();
-        List<MailBoxRes> mailBoxRes = mailBoxService.getUnreadLetters(userId);
+        List<MailBoxRes> mailBoxRes = mailBoxService.getUnreadLetters(userPrincipal.getId());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -39,8 +38,7 @@ public class MailBoxController {
 
     @GetMapping("/read")
     public ResponseEntity<?> getReadLetters(@CurrentUser UserPrincipal userPrincipal) {
-        Long userId = userPrincipal.getId();
-        List<MailBoxRes> mailBoxRes = mailBoxService.getReadLetters(userId);
+        List<MailBoxRes> mailBoxRes = mailBoxService.getReadLetters(userPrincipal.getId());
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -53,17 +51,7 @@ public class MailBoxController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getLetterDetails(@CurrentUser UserPrincipal userPrincipal,
                                               @PathVariable Long id) {
-        Long userId = userPrincipal.getId();
-        Letter letter = mailBoxService.getLetterDetails(userId, id);
-
-        MailBoxDetailsRes mailBoxDetailsRes = MailBoxDetailsRes.builder()
-                .letterId(letter.getId())
-                .senderNickname(letter.getSender().getNickname())
-                .title(letter.getTitle())
-                .contents(letter.getContents())
-                .envelopType(letter.getEnvelopType())
-                .isRead(letter.isRead())
-                .build();
+        MailBoxDetailsRes mailBoxDetailsRes = mailBoxService.getLetterDetails(userPrincipal.getId(), id);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

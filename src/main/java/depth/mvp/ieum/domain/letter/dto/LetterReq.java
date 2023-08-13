@@ -23,5 +23,5 @@ public class LetterReq {
     @Pattern(regexp = "^(?!.*<img).*", message = "이미지 삽입은 허용되지 않습니다.")
     private String contents;
 
-    private Integer envelopType;
+    private int envelopType = 1;
 }

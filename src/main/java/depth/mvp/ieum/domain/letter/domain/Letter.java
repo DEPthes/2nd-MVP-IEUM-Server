@@ -31,14 +31,14 @@ public class Letter extends BaseEntity {
     @Pattern(regexp = "^(?!.*<img).*", message = "이미지 삽입은 허용되지 않습니다.")
     private String contents;
 
-    private int envelopType;
+    private int envelopType = 1;
 
     private boolean isRead;
 
     @Enumerated(EnumType.STRING)
     private LetterType letterType;
 
-    @ManyToOne(fetch = FetchType.EAGER) // 우체통 기능 실행 시 프록시 문제 발생하므로 fetchType Eager로 변경,Hibernate.initialize()의 경우 로딩이 느려ㅓ 배제함
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id")
     private User sender;
 
