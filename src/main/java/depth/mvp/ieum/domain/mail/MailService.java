@@ -68,12 +68,10 @@ public class MailService {
 
         message.setTo(email);
         message.setFrom("depth.ieum@gmail.com");
-        message.setSubject("[이:음] 편지가 도착했습니다.");
-        message.setText(String.format("안녕하세요. 이:음입니다.\n" +
+        message.setSubject("[이:음] 마음을 담은 편지가 도착했어요!");
+        message.setText(String.format("누군가의 마음이 담긴 편지가 도착했어요.\n" +
                 "\n" +
-                "익명으로 마음을 전하는 랜덤 익명 편지 서비스, 이:음 이용해 주셔서 감사합니다.\n" +
-                "\n" +
-                "편지가 도착했습니다. 우체통을 확인해주세요!.\n"));
+                "지금 바로 확인하시고, 내 마음도 전달해보세요.\n"));
 
         mailSender.send(message);
     }

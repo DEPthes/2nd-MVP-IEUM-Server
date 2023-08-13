@@ -28,7 +28,8 @@ public class Letter extends BaseEntity {
     private String title;
 
     @NotBlank(message = "내용을 입력해야 합니다.")
-    @Pattern(regexp = "^(?!.*<img).*", message = "이미지 삽입은 허용되지 않습니다.")
+//    @Pattern(regexp = "^(?!.*<img).*", message = "이미지 삽입은 허용되지 않습니다.")
+    @Lob
     private String contents;
 
     private int envelopType = 1;
