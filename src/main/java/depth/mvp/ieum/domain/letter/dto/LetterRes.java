@@ -1,6 +1,7 @@
 package depth.mvp.ieum.domain.letter.dto;
 
 
+import depth.mvp.ieum.domain.letter.domain.LetterType;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,6 +18,8 @@ public class LetterRes {
     private int envelopType;
 
     private boolean isRead;
+
+    private LetterType letterType;
 
     private Long senderId;
 

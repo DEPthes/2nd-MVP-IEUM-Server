@@ -25,7 +25,6 @@ public class LetterController {
 
     private final LetterSendService letterSendService;
     private final LetterReplyService letterReplyService;
-    private final MailBoxService letterBoxService;
 
     @PostMapping("/send")
     public ResponseEntity<?> writeLetter(@CurrentUser UserPrincipal userPrincipal, @Valid @RequestBody LetterSendReq letterReq) {
@@ -38,6 +37,7 @@ public class LetterController {
                 .contents(letter.getContents())
                 .envelopType(letter.getEnvelopType())
                 .isRead(letter.isRead())
+                .letterType(letter.getLetterType())
                 .receiverId(letter.getReceiver().getId())
                 .senderId(letter.getSender().getId())
                 .build();
@@ -61,6 +61,7 @@ public class LetterController {
                 .contents(letter.getContents())
                 .envelopType(letter.getEnvelopType())
                 .isRead(letter.isRead())
+                .letterType(letter.getLetterType())
                 .receiverId(letter.getReceiver().getId())
                 .senderId(letter.getSender().getId())
                 .build();
