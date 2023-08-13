@@ -12,5 +12,5 @@ public class MailBoxRes {
     private Long letterId;
     private String senderNickname;
     private String title;
-    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }

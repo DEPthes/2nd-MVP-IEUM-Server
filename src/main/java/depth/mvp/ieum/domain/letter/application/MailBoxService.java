@@ -11,14 +11,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class MailBoxService {
 
     private final LetterRepository letterRepository;
-    private final UserRepository userRepository;
 
     // 우체통 - 받은 편지 모아보기(제목, 수신날짜, 발신자 닉네임)
     // 안 읽은 편지
@@ -38,7 +39,7 @@ public class MailBoxService {
                     .build();
             unreadMailBoxes.add(mailBoxRes);
         }
-        return unreadMailBoxes;
+        return sortByLatestDate(unreadMailBoxes);
     }
 
     public List<MailBoxRes> getReadLetters(Long userId) {
@@ -57,7 +58,7 @@ public class MailBoxService {
                     .build();
             readMailBoxes.add(mailBoxRes);
         }
-        return readMailBoxes;
+        return sortByLatestDate(readMailBoxes);
     }
 
     // 편지 상세 보기(읽음 여부 true 변경)
@@ -79,4 +80,16 @@ public class MailBoxService {
     }
 
 
+    public List<MailBoxRes> sortByLatestDate(List<MailBoxRes> mailBoxes) {
+        if (mailBoxes == null || mailBoxes.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Comparator<MailBoxRes> byLatestDate = Comparator.comparing(MailBoxRes::getModifiedAt).reversed();
+        List<MailBoxRes> sortedMailBoxes = mailBoxes.stream()
+                .sorted(byLatestDate)
+                .collect(Collectors.toList());
+
+        return sortedMailBoxes;
+    }
 }
