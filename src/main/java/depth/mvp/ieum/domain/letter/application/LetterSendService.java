@@ -1,6 +1,7 @@
 package depth.mvp.ieum.domain.letter.application;
 
 import depth.mvp.ieum.domain.letter.domain.Letter;
+import depth.mvp.ieum.domain.letter.domain.LetterType;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
 import depth.mvp.ieum.domain.mail.MailService;
@@ -36,6 +37,7 @@ public class LetterSendService {
                 .contents(letterReq.getContents())
                 .envelopType(letterReq.getEnvelopType())
                 .isRead(false)
+                .letterType(LetterType.SENT)
                 .build();
 
         letterRepository.save(letter);

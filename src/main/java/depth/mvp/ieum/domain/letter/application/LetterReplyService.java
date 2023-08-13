@@ -1,6 +1,7 @@
 package depth.mvp.ieum.domain.letter.application;
 
 import depth.mvp.ieum.domain.letter.domain.Letter;
+import depth.mvp.ieum.domain.letter.domain.LetterType;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.LetterReplyReq;
 import depth.mvp.ieum.domain.mail.MailService;
@@ -29,7 +30,7 @@ public class LetterReplyService {
         Letter originalLetter = letterRepository.findById(letterReplyReq.getOriginalLetterId())
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
 
-        // originalLetter의 receiver랑 user랑 같은지 확인하는 프로세스 필요
+        // originalLetter의 receiver와 user가 동일한지 확인하는 로직
         if (!originalLetter.getReceiver().getId().equals(user.getId())) {
             throw new IllegalArgumentException("원본 편지의 수신자와 현재 사용자가 다릅니다.");  // 적절한 문구 필요
         }
@@ -45,6 +46,7 @@ public class LetterReplyService {
                 .contents(letterReplyReq.getContents())
                 .envelopType(letterReplyReq.getEnvelopType())
                 .isRead(false)
+                .letterType(LetterType.SENT)
                 .build();
 
         letterRepository.save(letter);

@@ -35,11 +35,14 @@ public class Letter extends BaseEntity {
 
     private boolean isRead;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false) // 우체통 기능 실행 시 프록시 문제 발생하므로 fetchType Eager로 변경,Hibernate.initialize()의 경우 로딩이 느려ㅓ 배제함
+    @Enumerated(EnumType.STRING)
+    private LetterType letterType;
+
+    @ManyToOne(fetch = FetchType.EAGER) // 우체통 기능 실행 시 프록시 문제 발생하므로 fetchType Eager로 변경,Hibernate.initialize()의 경우 로딩이 느려ㅓ 배제함
     @JoinColumn(name = "sender_id")
     private User sender;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id")
     private User receiver;
 

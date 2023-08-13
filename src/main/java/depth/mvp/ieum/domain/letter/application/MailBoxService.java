@@ -1,6 +1,7 @@
 package depth.mvp.ieum.domain.letter.application;
 
 import depth.mvp.ieum.domain.letter.domain.Letter;
+import depth.mvp.ieum.domain.letter.domain.LetterType;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
 import depth.mvp.ieum.domain.user.domain.User;
@@ -24,7 +25,7 @@ public class MailBoxService {
     public List<MailBoxRes> getUnreadLetters(Long userId) {
 
         List<MailBoxRes> unreadMailBoxes = new ArrayList<>();
-        List<Letter> unreadLetters = letterRepository.findByReceiver_IdAndIsRead(userId, false);
+        List<Letter> unreadLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, false, LetterType.SENT);
 
         for (Letter letter : unreadLetters) {
             String senderNickname = letter.getSender().getNickname();
@@ -33,7 +34,7 @@ public class MailBoxService {
                     .letterId(letter.getId())
                     .senderNickname(senderNickname)
                     .title(letter.getTitle())
-                    .createdAt(letter.getCreatedAt())
+                    .modifiedAt(letter.getModifiedAt())
                     .build();
             unreadMailBoxes.add(mailBoxRes);
         }
@@ -43,7 +44,7 @@ public class MailBoxService {
     public List<MailBoxRes> getReadLetters(Long userId) {
 
         List<MailBoxRes> readMailBoxes = new ArrayList<>();
-        List<Letter> readLetters = letterRepository.findByReceiver_IdAndIsRead(userId, true);
+        List<Letter> readLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT);
 
         for (Letter letter : readLetters) {
             String senderNickname = letter.getSender().getNickname();
@@ -52,7 +53,7 @@ public class MailBoxService {
                     .letterId(letter.getId())
                     .senderNickname(senderNickname)
                     .title(letter.getTitle())
-                    .createdAt(letter.getCreatedAt())
+                    .modifiedAt(letter.getModifiedAt())
                     .build();
             readMailBoxes.add(mailBoxRes);
         }
@@ -60,6 +61,8 @@ public class MailBoxService {
     }
 
     // 편지 상세 보기(읽음 여부 true 변경)
+    // 기능 명세 보고 다시 수정
+    // 최신 순서로 정렬
     public Letter getLetterDetails(Long userId, Long letterId) {
         Letter letter = letterRepository.findById(letterId)
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
