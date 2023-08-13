@@ -5,6 +5,8 @@ import depth.mvp.ieum.domain.letter.domain.LetterType;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.domain.letter.dto.LetterRes;
+import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
+import depth.mvp.ieum.domain.letter.dto.TempLetterRes;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
@@ -12,6 +14,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -23,9 +28,9 @@ public class TempLetterService {
     // 서비스만 나누고 컨트롤러는 letterController에
 
     @Transactional
-    public LetterRes writeTempLetter(UserPrincipal userPrincipal, LetterReq letterReq) {
+    public LetterRes writeTempLetter(Long userId, LetterReq letterReq) {
 
-        User user = userRepository.findById(userPrincipal.getId())
+        User user = userRepository.findById(userId)
                 .orElseThrow();
         User receiver = getReceiver(user, letterReq.getOriginalLetterId());
 
@@ -44,13 +49,50 @@ public class TempLetterService {
     }
 
     // 임시저장 조회(답장/신규 구분)
+    // 신규 작성
+    public List<TempLetterRes> getNewTempLetters(Long userId) {
+        List<TempLetterRes> newTempLetters = new ArrayList<>();
+        List<Letter> letters = letterRepository.findBySender_IdAndLetterType(userId, LetterType.TEMP);
+
+        for (Letter letter : letters) {
+            boolean isReceiverNull = (letter.getReceiver() == null);
+            if (isReceiverNull) {
+                TempLetterRes tempLetterRes = createTempLetterRes(letter);
+                newTempLetters.add(tempLetterRes);
+            }
+        }
+        return newTempLetters;
+
+    }
+
+    // 답장
+    public List<TempLetterRes> getReplyTempLetters(Long userId) {
+        List<TempLetterRes> replyTempLetters = new ArrayList<>();
+        List<Letter> letters = letterRepository.findBySender_IdAndLetterType(userId, LetterType.TEMP);
+
+        for (Letter letter : letters) {
+            boolean isReceiverNull = (letter.getReceiver() == null);
+            if (!isReceiverNull) {
+                TempLetterRes tempLetterRes = createTempLetterRes(letter);
+                replyTempLetters.add(tempLetterRes);
+            }
+        }
+        return replyTempLetters;
+    }
+
     // 임시저장 불러오기
 
-    private User getReceiver(User user, Long letterId) {
+    private TempLetterRes createTempLetterRes(Letter letter) {
+        return TempLetterRes.builder()
+                .letterId(letter.getId())
+                .title(letter.getTitle())
+                .modifiedAt(letter.getModifiedAt())
+                .build();
+    }
 
+    private User getReceiver(User user, Long letterId) {
         // (임시저장) 편지 신규 작성
         if (letterId == null) { return null; }
-
         // (임시저장) 편지 답장
         Letter originalLetter = letterRepository.findById(letterId)
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));

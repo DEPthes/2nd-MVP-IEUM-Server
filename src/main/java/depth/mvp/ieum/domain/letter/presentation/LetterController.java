@@ -5,6 +5,7 @@ import depth.mvp.ieum.domain.letter.application.TempLetterService;
 import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.dto.LetterReq;
+import depth.mvp.ieum.domain.letter.dto.TempLetterRes;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
@@ -13,6 +14,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -39,7 +42,7 @@ public class LetterController {
     @PostMapping("/temp")
     public ResponseEntity<?> writeTempLetter(@CurrentUser UserPrincipal userPrincipal,
                                              @Valid @RequestBody LetterReq letterReq) {
-        LetterRes letterRes = tempLetterService.writeTempLetter(userPrincipal, letterReq);
+        LetterRes letterRes = tempLetterService.writeTempLetter(userPrincipal.getId(), letterReq);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -48,5 +51,32 @@ public class LetterController {
 
         return ResponseEntity.ok(apiResponse);
 
+    }
+
+    // 임시저장 리스트로 조회
+    // 신규 작성
+    @GetMapping("/temp-new")
+    public ResponseEntity<?> getNewTempLetters(@CurrentUser UserPrincipal userPrincipal) {
+        List<TempLetterRes> tempLetterRes = tempLetterService.getNewTempLetters(userPrincipal.getId());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(tempLetterRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    // 답장
+    @GetMapping("/temp-reply")
+    public ResponseEntity<?> getReplyTempLetters(@CurrentUser UserPrincipal userPrincipal) {
+        List<TempLetterRes> tempLetterRes = tempLetterService.getReplyTempLetters(userPrincipal.getId());
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(tempLetterRes)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
     }
 }
