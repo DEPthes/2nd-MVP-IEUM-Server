@@ -39,7 +39,7 @@ public class Letter extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private LetterType letterType;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
     private User sender;
 
