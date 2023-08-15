@@ -7,10 +7,7 @@ import depth.mvp.ieum.global.payload.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,9 +19,9 @@ public class AuthTokenController {
     //토큰 리프레시
     @PostMapping(value = "/refresh")
     public ResponseEntity<?> refresh(
-            @Valid @RequestBody RefreshTokenReq tokenRefreshRequest){
+            @CookieValue("refreshToken") String refreshToken){
 
-        AuthRes authRes = authTokenService.refresh(tokenRefreshRequest);
+        AuthRes authRes = authTokenService.refresh(refreshToken);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)

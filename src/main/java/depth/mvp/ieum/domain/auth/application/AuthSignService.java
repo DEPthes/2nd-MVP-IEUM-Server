@@ -7,6 +7,7 @@ import depth.mvp.ieum.domain.user.domain.Role;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.DefaultAssert;
+import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -92,12 +93,12 @@ public class AuthSignService {
 
     /**
      * 로그아웃
-     * @param refreshTokenReq 로그아웃 request DTO
+     * @param refreshToken 리프레시 토큰
      */
     @Transactional
-    public void signOut(RefreshTokenReq refreshTokenReq){
+    public void signOut(String refreshToken){
 
-        Optional<Token> token = tokenRepository.findByRefreshToken(refreshTokenReq.getRefreshToken());
+        Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
         DefaultAssert.isTrue(token.isPresent(), "이미 로그아웃 되었습니다");
 
         tokenRepository.delete(token.get());
