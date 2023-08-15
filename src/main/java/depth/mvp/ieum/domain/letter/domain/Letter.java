@@ -32,9 +32,12 @@ public class Letter extends BaseEntity {
     @Lob
     private String contents;
 
-    private int envelopType;
+    private int envelopType = 1;
 
     private boolean isRead;
+
+    @Enumerated(EnumType.STRING)
+    private LetterType letterType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sender_id")
@@ -45,5 +48,18 @@ public class Letter extends BaseEntity {
     private User receiver;
 
 
-
+    public void setIsRead(boolean isRead) {
+        this.isRead = isRead;
+    }
+    public void updateTempLetterToLetter(Long id, String title, String contents, int envelopType,
+                                         boolean isRead, LetterType letterType, User sender, User receiver) {
+        this.id = id;
+        this.title = title;
+        this.contents = contents;
+        this.envelopType = envelopType;
+        this.isRead = isRead;
+        this.letterType = letterType;
+        this.sender = sender;
+        this.receiver = receiver;
+    }
 }

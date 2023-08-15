@@ -4,7 +4,7 @@ import depth.mvp.ieum.domain.gpt.application.ChatGptService;
 import depth.mvp.ieum.domain.letter.application.LetterGptService;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckRes;
-import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
+import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import depth.mvp.ieum.global.payload.ApiResponse;
@@ -26,7 +26,7 @@ public class LetterGptController {
     @PostMapping("/send-gpt")
     public ResponseEntity<?> writeLetterForGpt(
             @CurrentUser UserPrincipal userPrincipal,
-            @Valid @RequestBody LetterSendReq letterReq) {
+            @Valid @RequestBody LetterReq letterReq) {
 
         letterGptService.writeLetterForGpt(userPrincipal, letterReq);
 

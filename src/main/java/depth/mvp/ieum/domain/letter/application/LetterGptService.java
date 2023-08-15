@@ -3,9 +3,10 @@ package depth.mvp.ieum.domain.letter.application;
 import depth.mvp.ieum.domain.gpt.application.ChatGptService;
 import depth.mvp.ieum.domain.gpt.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.domain.Letter;
+import depth.mvp.ieum.domain.letter.domain.LetterType;
 import depth.mvp.ieum.domain.letter.domain.repository.LetterRepository;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
-import depth.mvp.ieum.domain.letter.dto.LetterSendReq;
+import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
@@ -33,18 +34,20 @@ public class LetterGptService {
 
     // 편지 작성 - gpt에게
     @Transactional
-    public void writeLetterForGpt(UserPrincipal userPrincipal, LetterSendReq letterReq) {
+    public void writeLetterForGpt(UserPrincipal userPrincipal, LetterReq letterReq) {
 
         Optional<User> user = userRepository.findById(userPrincipal.getId());
         DefaultAssert.isTrue(user.isPresent(), "유저가 올바르지 않습니다.");
         User findUser = user.get();
 
         // 수신인은 gpt이므로 receiver는 null, isRead는 true로 생성
+        // 추가) 발송되는 편지이므로 LetterType.SENT 지정
         Letter letter = Letter.builder()
                 .sender(findUser)
                 .title(letterReq.getTitle())
                 .contents(letterReq.getContents())
                 .envelopType(letterReq.getEnvelopType())
+                .letterType(LetterType.SENT)
                 .isRead(true)
                 .build();
 
@@ -66,6 +69,7 @@ public class LetterGptService {
                     .title(extractTitle(letterRes.getData()))
                     .contents(extractContent(letterRes.getData()))
                     .envelopType(letterFromUser.getEnvelopType())
+                    .letterType(LetterType.SENT)   // LetterType.SENT 지정
                     .isRead(false)
                     .build();
             letterRepository.save(letterFromGpt);
