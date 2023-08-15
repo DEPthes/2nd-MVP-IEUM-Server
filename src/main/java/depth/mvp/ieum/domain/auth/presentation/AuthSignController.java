@@ -1,5 +1,7 @@
 package depth.mvp.ieum.domain.auth.presentation;
 
+import depth.mvp.ieum.domain.auth.application.AuthTokenService;
+import depth.mvp.ieum.domain.auth.domain.Token;
 import depth.mvp.ieum.domain.auth.dto.SignUpReq;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
@@ -7,6 +9,7 @@ import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import depth.mvp.ieum.global.payload.Message;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import depth.mvp.ieum.domain.auth.application.AuthSignService;
@@ -19,6 +22,9 @@ import depth.mvp.ieum.global.payload.ApiResponse;
 public class AuthSignController {
 
     private final AuthSignService authSignService;
+    private final AuthTokenService authTokenService;
+
+    public static final String SET_COOKIE = "Set-Cookie";
 
     //회원가입
     @PostMapping("/sign-up")
@@ -47,10 +53,10 @@ public class AuthSignController {
             @Valid @RequestBody SignInReq signInReq) {
 
         TokenMapping tokenMapping = authSignService.signIn(signInReq);
+        Token token = authTokenService.getTokenByEmail(signInReq.getEmail());
 
         AuthRes authRes = AuthRes.builder()
                 .accessToken(tokenMapping.getAccessToken())
-                .refreshToken(tokenMapping.getRefreshToken())
                 .build();
 
         ApiResponse apiResponse = ApiResponse.builder()
@@ -58,23 +64,27 @@ public class AuthSignController {
                 .information(authRes)
                 .build();
 
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok()
+                .header(SET_COOKIE, token.generateCookie().toString())
+                .body(apiResponse);
     }
 
     //로그아웃
     @PostMapping("/sign-out")
     public ResponseEntity<?> signOut(
-            @CurrentUser UserPrincipal userPrincipal,
-            @Valid @RequestBody RefreshTokenReq refreshTokenReq) {
+            @CookieValue("refreshToken") String refreshToken) {
 
-        authSignService.signOut(refreshTokenReq);
+        Token token = authTokenService.getTokenByRefreshToken(refreshToken);
+        authSignService.signOut(refreshToken);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("로그아웃 되었습니다.").build())
                 .build();
 
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, token.generateSignOutCookie().toString())
+                .body(apiResponse);
     }
 
     // 비밀번호 재설정

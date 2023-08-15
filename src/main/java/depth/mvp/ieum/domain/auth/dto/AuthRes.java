@@ -8,13 +8,10 @@ public class AuthRes {
 
     private String accessToken;
 
-    private String refreshToken;
-
+//    private String refreshToken;
 
     @Builder
-    public AuthRes(String accessToken, String refreshToken) {
+    public AuthRes(String accessToken) {
         this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
     }
-
 }

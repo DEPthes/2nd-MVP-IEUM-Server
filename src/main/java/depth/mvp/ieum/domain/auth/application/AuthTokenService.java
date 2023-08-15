@@ -24,32 +24,49 @@ public class AuthTokenService {
 
     /**
      * 토큰 갱신
-     * @param tokenRefreshRequest 토큰 갱신 request DTO
+     * @param refreshToken 토큰을 재발급 받기 위한 리프레시 토큰
      * @return 토큰 갱신 response DTO
      */
     @Transactional
-    public AuthRes refresh(RefreshTokenReq tokenRefreshRequest) {
+    public AuthRes refresh(String refreshToken) {
 
-        Optional<Token> token = tokenRepository.findByRefreshToken(tokenRefreshRequest.getRefreshToken());
+        Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
         DefaultAssert.isTrue(token.isPresent(), "다시 로그인 해주세요.");
         Authentication authentication = customTokenProviderService.getAuthenticationByEmail(token.get().getUserEmail());
 
         TokenMapping tokenMapping;
 
-        try {
-            Long expirationTime = customTokenProviderService.getExpiration(tokenRefreshRequest.getRefreshToken());
+        Long expirationTime = customTokenProviderService.getExpiration(refreshToken);
+
+        if(expirationTime > 0){
             tokenMapping = customTokenProviderService.refreshToken(authentication, token.get().getRefreshToken());
-        } catch (ExpiredJwtException ex) {
+        }else{
             tokenMapping = customTokenProviderService.createToken(authentication);
-            token.get().updateRefreshToken(tokenMapping.getRefreshToken());
         }
 
         Token updateToken = token.get().updateRefreshToken(tokenMapping.getRefreshToken());
+        tokenRepository.save(updateToken);
 
         return AuthRes.builder()
                 .accessToken(tokenMapping.getAccessToken())
-                .refreshToken(updateToken.getRefreshToken())
                 .build();
     }
 
+    // 유저 이메일로 토큰 찾기
+    public Token getTokenByEmail(String email) {
+
+        Optional<Token> token = tokenRepository.findByUserEmail(email);
+        DefaultAssert.isTrue(token.isPresent(), "이메일에 해당하는 토큰이 없습니다.");
+
+        return token.get();
+    }
+
+    // 리프레시 토큰으로 토큰 찾기
+    public Token getTokenByRefreshToken(String refreshToken) {
+
+        Optional<Token> token = tokenRepository.findByRefreshToken(refreshToken);
+        DefaultAssert.isTrue(token.isPresent(), "리프레시 토큰에 해당하는 토큰이 없습니다.");
+
+        return token.get();
+    }
 }
