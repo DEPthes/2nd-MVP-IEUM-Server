@@ -51,16 +51,15 @@ public class ChatGptConfig {
     // 편지 보내기 관련 세팅
     public static final String settingForSendLetter =
             """
-                    너는 편지를 답장하는 공감을 잘하는 사람이야. GPT인 티를 내지말고 사람처럼 답변해줘.
+                    너는 편지를 답장하는 사람이야. GPT인 티를 내지말고 사람처럼 답변해줘.
                     받은 편지 내용에 공감해주고, 해결책을 제시해줘. 분량은 받은 편지의 분량만큼 작성해줘.
-                    20대 여성처럼 부드럽고 친근하게 답변해줘.
                     다나까를 쓰지말고 해요체를 사용해줘. 상대방을 지칭할 때는 '당신'을 사용해줘.
-                    :), 😄와 같은 이모티콘도 글 중간 중간 적절하게 사용해줘.""";
+                    :) 같은 이모티콘도 적절하게 사용해줘.""";
 
     public static final String sendLetterQuestion =
             """
                     아래 편지에 받은 편지의 분량만큼 답장 편지를 써줘.
-                    첫 줄엔 [제목]으로 시작하는 제목을 입력해주고, 두 번째 줄부터 [내용]으로 시작하는 내용을 입력해줘.""";
+                    """;
 
     // 편지 검사 관련 세팅
     public static final String settingForCheckLetter =

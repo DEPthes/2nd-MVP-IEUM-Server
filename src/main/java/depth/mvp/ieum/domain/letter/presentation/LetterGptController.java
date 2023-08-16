@@ -1,6 +1,6 @@
 package depth.mvp.ieum.domain.letter.presentation;
 
-import depth.mvp.ieum.domain.gpt.application.ChatGptService;
+import depth.mvp.ieum.domain.gpt.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.application.LetterGptService;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckRes;
@@ -22,7 +22,7 @@ public class LetterGptController {
 
     private final LetterGptService letterGptService;
 
-    // gpt에게 편지 발송
+    // gpt에게 신규 편지 발송
     @PostMapping("/send-gpt")
     public ResponseEntity<?> writeLetterForGpt(
             @CurrentUser UserPrincipal userPrincipal,
@@ -37,6 +37,23 @@ public class LetterGptController {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    // gpt에게 답장 편지 발송
+    @PostMapping("/reply-gpt")
+    public ResponseEntity<?> replyLetterForGpt(
+            @CurrentUser UserPrincipal userPrincipal,
+            @Valid @RequestBody LetterReq letterReq) {
+
+        letterGptService.replyLetterForGpt(userPrincipal, letterReq);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("GPT에게 답장 편지가 발송되었습니다.").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 
     // gpt에게 편지 검사받기
     @GetMapping("/check-gpt")
