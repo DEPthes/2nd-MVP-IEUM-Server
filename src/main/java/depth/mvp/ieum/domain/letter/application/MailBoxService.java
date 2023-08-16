@@ -7,7 +7,11 @@ import depth.mvp.ieum.domain.letter.dto.MailBoxDetailsRes;
 import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -16,20 +20,26 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class MailBoxService {
 
     private final LetterRepository letterRepository;
 
     // 우체통 - 받은 편지 리스트로 조회
     // 안 읽은 편지
-    public List<MailBoxRes> getUnreadLetters(Long userId) {
-        List<Letter> unreadLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, false, LetterType.SENT);
+    @Transactional
+    public List<MailBoxRes> getUnreadLetters(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Letter> unreadLettersPage = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, false, LetterType.SENT, pageable);
+        List<Letter> unreadLetters = unreadLettersPage.getContent();
         return convertLettersToMailBoxResList(unreadLetters);
     }
 
-    // 읽은 편지
-    public List<MailBoxRes> getReadLetters(Long userId) {
-        List<Letter> readLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT);
+    @Transactional
+    public List<MailBoxRes> getReadLetters(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Letter> readLettersPage = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT, pageable);
+        List<Letter> readLetters = readLettersPage.getContent();
         return convertLettersToMailBoxResList(readLetters);
     }
 
