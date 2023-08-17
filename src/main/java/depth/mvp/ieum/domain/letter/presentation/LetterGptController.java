@@ -1,6 +1,5 @@
 package depth.mvp.ieum.domain.letter.presentation;
 
-import depth.mvp.ieum.domain.gpt.dto.LetterRes;
 import depth.mvp.ieum.domain.letter.application.LetterGptService;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckRes;
@@ -56,7 +55,7 @@ public class LetterGptController {
 
 
     // gpt에게 편지 검사받기
-    @GetMapping("/check-gpt")
+    @PostMapping("/check-gpt")
     public ResponseEntity<?> checkLetter(
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody LetterCheckReq letterCheckReq) {
