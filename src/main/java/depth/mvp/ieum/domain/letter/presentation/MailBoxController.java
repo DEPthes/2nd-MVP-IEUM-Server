@@ -10,10 +10,7 @@ import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import depth.mvp.ieum.global.payload.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,8 +22,12 @@ public class MailBoxController {
     private final MailBoxService mailBoxService;
 
     @GetMapping
-    public ResponseEntity<?> getUnreadLetters(@CurrentUser UserPrincipal userPrincipal) {
-        List<MailBoxRes> mailBoxRes = mailBoxService.getUnreadLetters(userPrincipal.getId());
+    public ResponseEntity<?> getUnreadLetters(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        List<MailBoxRes> mailBoxRes = mailBoxService.getUnreadLetters(userPrincipal.getId(), page, size);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
@@ -37,8 +38,12 @@ public class MailBoxController {
     }
 
     @GetMapping("/read")
-    public ResponseEntity<?> getReadLetters(@CurrentUser UserPrincipal userPrincipal) {
-        List<MailBoxRes> mailBoxRes = mailBoxService.getReadLetters(userPrincipal.getId());
+    public ResponseEntity<?> getReadLetters(
+            @CurrentUser UserPrincipal userPrincipal,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size
+    ) {
+        List<MailBoxRes> mailBoxRes = mailBoxService.getReadLetters(userPrincipal.getId(), page, size);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
