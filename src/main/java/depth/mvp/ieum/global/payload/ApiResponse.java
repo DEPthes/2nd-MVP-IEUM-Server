@@ -11,8 +11,6 @@ public class ApiResponse {
     //올바르게 로직을 처리했으면 True, 아니면 False를 반환합니다.
     private boolean check;
 
-    // 상태 코드
-    private int status;
     
     //정보를 object 형식으로 감싸서 표현합니다.
     private Object information;
@@ -22,7 +20,6 @@ public class ApiResponse {
     @Builder
     public ApiResponse(boolean check, Object information) {
         this.check = check;
-        this.status = 200;
         this.information = information;
     }
 }
