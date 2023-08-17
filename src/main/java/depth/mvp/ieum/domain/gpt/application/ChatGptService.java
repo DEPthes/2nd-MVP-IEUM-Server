@@ -3,7 +3,6 @@ package depth.mvp.ieum.domain.gpt.application;
 import depth.mvp.ieum.domain.gpt.dto.*;
 import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
-import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.config.ChatGptConfig;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -68,7 +68,6 @@ public class ChatGptService {
         );
 
         String response = chatGptRes.getChoices().get(0).getMessage().getContent();
-
         return RecommendRes.builder().nickname(createPrettyResponseForNickname(response)).build();
     }
 
@@ -192,7 +191,7 @@ public class ChatGptService {
     public String createQuestionForNicknmae() {
         // 현재 DB에 있는 유저들의 닉네임들을 조회해서 String에 담는다.
         String nicknameList = findNicknameList();
-        String nicknameReqest = nicknameList.length() != 0 ? nicknameList+"은 제외하고 추천해줘." : "";
+        String nicknameReqest = nicknameList.length() != 0 ? "'" + nicknameList +"'는 제외하고 추천해줘." : "";
         // 질문 만들기
         String question = getRandomQuestion(ChatGptConfig.nicknameQuestion1, ChatGptConfig.nicknameQuestion2, ChatGptConfig.nicknameQuestion3);
         question += nicknameReqest;
@@ -208,15 +207,10 @@ public class ChatGptService {
 
     // 프론트로 응답 주기 전 데이터를 정제하기 위한 메서드
     public List<String> createPrettyResponseForNickname(String response) {
-        // 정규식을 사용하여 띄어쓰기를 기준으로 구별하여 리스트에 추가
-        List<String> listRes = new ArrayList<>();
-        String[] words = response.split("\\s");
-        for (String word : words) {
-            if (word.matches("[가-힣]+")) {
-                listRes.add(word);
-            }
-        }
-        return listRes;
+        // 띄어쓰기를 기준으로 구별하여 리스트에 추가
+        String[] tokens = response.split(", ");
+        List<String> stringList = Arrays.asList(tokens);
+        return stringList;
     }
 
     // api 호출에 필요한 Http Header를 만드는 메서드
