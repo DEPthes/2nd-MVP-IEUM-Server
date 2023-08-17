@@ -5,6 +5,7 @@ import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.DefaultAssert;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,5 +31,13 @@ public class UserService {
         User findUser = user.get();
 
         userRepository.delete(findUser);
+    }
+
+    public Long verifyUser(UserPrincipal userPrincipal) {
+
+        Optional<User> user = userRepository.findById(userPrincipal.getId());
+        DefaultAssert.isTrue(user.isPresent(), "유저가 올바르지 않습니다.");
+
+        return user.get().getId();
     }
 }
