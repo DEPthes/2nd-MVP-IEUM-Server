@@ -3,6 +3,7 @@ package depth.mvp.ieum.domain.gpt.application;
 import depth.mvp.ieum.domain.gpt.dto.*;
 import depth.mvp.ieum.domain.letter.domain.Letter;
 import depth.mvp.ieum.domain.letter.dto.LetterCheckReq;
+import depth.mvp.ieum.domain.letter.dto.LetterReq;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.config.ChatGptConfig;
@@ -91,6 +92,37 @@ public class ChatGptService {
                 .content(ChatGptConfig.sendLetterQuestion + "\n" + letter.getTitle() + "\n" +letter.getContents())
                 .build());
 
+        log.info(messages.toString());
+        ChatGptRes chatGptRes = this.getResponse(
+                this.buildHttpEntity(
+                        new ChatGptReq(
+                                ChatGptConfig.CHAT_MODEL,
+                                ChatGptConfig.MAX_TOKEN_LETTER,
+                                ChatGptConfig.TEMPERATURE,
+                                ChatGptConfig.STREAM,
+                                messages
+                        )
+                )
+        );
+
+        String response = chatGptRes.getChoices().get(0).getMessage().getContent();
+
+        return LetterRes.builder().data(response).build();
+    }
+
+    public LetterRes replyLetter(Letter letter, List<ChatGptMessage> messageList) {
+        List<ChatGptMessage> messages = new ArrayList<>();
+
+        // gpt 역할 설정
+        messages.add(ChatGptMessage.builder()
+                .role("system")
+                .content(ChatGptConfig.settingForSendLetter)
+                .build());
+        messages.addAll(messageList);
+        messages.add(ChatGptMessage.builder()
+                .role(ChatGptConfig.ROLE)  // "user"
+                .content(ChatGptConfig.sendLetterQuestion + "\n" + letter.getTitle() + "\n" +letter.getContents())
+                .build());
         log.info(messages.toString());
         ChatGptRes chatGptRes = this.getResponse(
                 this.buildHttpEntity(
