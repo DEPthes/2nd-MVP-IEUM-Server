@@ -44,6 +44,7 @@ public class MailBoxService {
     }
 
     // 편지 상세 조회(읽음 여부 true 변경)
+    @Transactional
     public MailBoxDetailsRes getLetterDetails(Long userId, Long letterId) {
         Letter letter = letterRepository.findById(letterId)
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
