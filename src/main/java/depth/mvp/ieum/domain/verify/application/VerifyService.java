@@ -1,6 +1,7 @@
 package depth.mvp.ieum.domain.verify.application;
 
 import depth.mvp.ieum.domain.mail.MailService;
+import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.domain.verify.domain.Verify;
 import depth.mvp.ieum.domain.verify.domain.repository.VerifyRepository;
 import depth.mvp.ieum.global.DefaultAssert;
@@ -20,6 +21,7 @@ public class VerifyService {
 
     private final MailService mailService;
     private final VerifyRepository verifyRepository;
+    private final UserRepository userRepository;
 
 
     /**
@@ -28,6 +30,8 @@ public class VerifyService {
      */
     @Transactional
     public void sendVerifyCode(String targetEmail) {
+
+        DefaultAssert.isTrue(userRepository.existsByEmail(targetEmail), "이메일이 올바르지 않습니다.");
 
         // mailService를 이용해 해당 이메일로 인증코드를 보낸다.
         String randomCode = mailService.sendVerifyCode(targetEmail);
