@@ -12,5 +12,6 @@ public class MailBoxRes {
     private Long letterId;
     private String senderNickname;
     private String title;
+    private int envelopType;
     private LocalDateTime modifiedAt;
 }

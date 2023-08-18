@@ -15,8 +15,6 @@ public class MailBoxDetailsRes {
 
     private String contents;
 
-    private int envelopType;
-
     private boolean isRead;
 
 
