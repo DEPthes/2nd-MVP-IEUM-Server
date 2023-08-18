@@ -71,6 +71,7 @@ public class MailBoxService {
                     .letterId(letter.getId())
                     .senderNickname(senderNickname)
                     .title(letter.getTitle())
+                    .envelopType(letter.getEnvelopType())
                     .modifiedAt(letter.getModifiedAt())
                     .build();
 
@@ -103,7 +104,6 @@ public class MailBoxService {
                 .senderNickname(senderNickname)
                 .title(letter.getTitle())
                 .contents(letter.getContents())
-                .envelopType(letter.getEnvelopType())
                 .isRead(letter.isRead())
                 .build();
         return mailBoxDetailsRes;
