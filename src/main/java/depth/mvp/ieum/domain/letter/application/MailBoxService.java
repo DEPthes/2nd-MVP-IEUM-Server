@@ -60,7 +60,12 @@ public class MailBoxService {
         List<MailBoxRes> mailBoxResList = new ArrayList<>();
 
         for (Letter letter : letters) {
-            String senderNickname = letter.getSender().getNickname();
+            String senderNickname;
+            if (letter.getSender() == null) {
+                senderNickname = null;
+            }else {
+                senderNickname = letter.getSender().getNickname();
+            }
 
             MailBoxRes mailBoxRes = MailBoxRes.builder()
                     .letterId(letter.getId())
@@ -87,9 +92,15 @@ public class MailBoxService {
     }
 
     private MailBoxDetailsRes convertLetterToMailBoxDetails(Letter letter) {
+        String senderNickname;
+        if (letter.getSender() == null) {
+            senderNickname = null;
+        }else {
+            senderNickname = letter.getSender().getNickname();
+        }
         MailBoxDetailsRes mailBoxDetailsRes = MailBoxDetailsRes.builder()
                 .letterId(letter.getId())
-                .senderNickname(letter.getSender().getNickname())
+                .senderNickname(senderNickname)
                 .title(letter.getTitle())
                 .contents(letter.getContents())
                 .envelopType(letter.getEnvelopType())
