@@ -18,11 +18,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,27 +61,7 @@ public class LetterGptService {
                 .build();
 
         letterRepository.save(letter);
-        asyncSendLetterToGpt(letter, findUser);
-    }
-
-    // gpt에게 편지를 보내고 답장을 받는 메서드 (신규 작성, 비동기 처리)
-    @Transactional
-    public void asyncSendLetterToGpt(Letter letterFromUser, User user) {
-
-        // GPT API 비동기 호출
-        CompletableFuture.runAsync(() -> {
-            LetterRes letterRes = chatGptService.sendLetter(letterFromUser);
-            mailService.sendEmailToReceiver(user.getEmail());
-            Letter letterFromGpt = Letter.builder()
-                    .receiver(user)
-                    .title(letterRes.getData().substring(0,8))
-                    .contents(letterRes.getData())
-                    .envelopType(letterFromUser.getEnvelopType())
-                    .letterType(LetterType.SENT)   // LetterType.SENT 지정
-                    .isRead(false)
-                    .build();
-            letterRepository.save(letterFromGpt);
-        });
+        sendLetterWithRetry(letter, findUser);
     }
 
     // 답장 편지 작성 - gpt
@@ -98,29 +82,9 @@ public class LetterGptService {
                 .build();
 
         letterRepository.save(letter);
-        asyncReplyLetterToGpt(letter, findUser);
+        replyLetterWithRetry(letter, findUser);
     }
 
-    // gpt에게 편지를 보내고 답장을 받는 메서드 (답장, 비동기 처리)
-    @Transactional
-    public void asyncReplyLetterToGpt(Letter letterFromUser, User user) {
-        List<Letter> messageList = letterRepository.findBySender_IdOrReceiver_Id(user.getId(), user.getId());
-        List<ChatGptMessage> gptMessageList = createMessageList(messageList);
-        // GPT API 비동기 호출
-        CompletableFuture.runAsync(() -> {
-            LetterRes letterRes = chatGptService.replyLetter(letterFromUser, gptMessageList);
-            mailService.sendEmailToReceiver(user.getEmail());
-            Letter letterFromGpt = Letter.builder()
-                    .receiver(user)
-                    .title(letterRes.getData().substring(0,8) + "..")
-                    .contents(letterRes.getData())
-                    .envelopType(letterFromUser.getEnvelopType())
-                    .letterType(LetterType.SENT)   // LetterType.SENT 지정
-                    .isRead(false)
-                    .build();
-            letterRepository.save(letterFromGpt);
-        });
-    }
 
     // gpt를 통한 편지 검사
     public String checkLetter(UserPrincipal userPrincipal, LetterCheckReq letterCheckReq) {
@@ -150,5 +114,92 @@ public class LetterGptService {
             }
         }
         return messages;
+    }
+
+    // gpt api 호출 제한이 걸렸을 때 일정 시간 후 재호출하는 메서드
+    private static final int RETRY_DELAY_MINUTES = 5; // 재시도 딜레이 (분)
+    private boolean isRetryScheduled = false;
+    public void sendLetterWithRetry(Letter letter, User user) {
+        if (!isRetryScheduled) {
+            try {
+                asyncSendLetterToGpt(letter, user);
+            } catch (HttpClientErrorException.TooManyRequests ex) {
+                log.info("API 호출 제한 발생, " + RETRY_DELAY_MINUTES + "분 후 재시도 예정");
+                sendScheduleRetry(letter, user);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // gpt에게 편지를 보내고 답장을 받는 메서드 (신규 작성, 비동기 처리)
+    @Transactional
+    public void asyncSendLetterToGpt(Letter letterFromUser, User user) {
+        // GPT API 비동기 호출
+        CompletableFuture.runAsync(() -> {
+            LetterRes letterRes = chatGptService.sendLetter(letterFromUser);
+            mailService.sendEmailToReceiver(user.getEmail());
+            Letter letterFromGpt = Letter.builder()
+                    .receiver(user)
+                    .title(letterRes.getData().substring(0,8))
+                    .contents(letterRes.getData())
+                    .envelopType(letterFromUser.getEnvelopType())
+                    .letterType(LetterType.SENT)   // LetterType.SENT 지정
+                    .isRead(false)
+                    .build();
+            letterRepository.save(letterFromGpt);
+        });
+    }
+
+    private void sendScheduleRetry(Letter letter, User user) {
+        isRetryScheduled = true;
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(() -> {
+            isRetryScheduled = false;
+            sendLetterWithRetry(letter, user);
+        }, RETRY_DELAY_MINUTES, TimeUnit.MINUTES);
+    }
+
+    public void replyLetterWithRetry(Letter letter, User user) {
+        if (!isRetryScheduled) {
+            try {
+                asyncReplyLetterToGpt(letter, user);
+            } catch (HttpClientErrorException.TooManyRequests ex) {
+                log.info("API 호출 제한 발생, " + RETRY_DELAY_MINUTES + "분 후 재시도 예정");
+                replySheduleRetry(letter, user);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // gpt에게 편지를 보내고 답장을 받는 메서드 (답장, 비동기 처리)
+    @Transactional
+    public void asyncReplyLetterToGpt(Letter letterFromUser, User user) {
+        List<Letter> messageList = letterRepository.findBySender_IdOrReceiver_Id(user.getId(), user.getId());
+        List<ChatGptMessage> gptMessageList = createMessageList(messageList);
+        // GPT API 비동기 호출
+        CompletableFuture.runAsync(() -> {
+            LetterRes letterRes = chatGptService.replyLetter(letterFromUser, gptMessageList);
+            mailService.sendEmailToReceiver(user.getEmail());
+            Letter letterFromGpt = Letter.builder()
+                    .receiver(user)
+                    .title(letterRes.getData().substring(0,8) + "..")
+                    .contents(letterRes.getData())
+                    .envelopType(letterFromUser.getEnvelopType())
+                    .letterType(LetterType.SENT)   // LetterType.SENT 지정
+                    .isRead(false)
+                    .build();
+            letterRepository.save(letterFromGpt);
+        });
+    }
+
+    private void replySheduleRetry(Letter letter, User user) {
+        isRetryScheduled = true;
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.schedule(() -> {
+            isRetryScheduled = false;
+            replyLetterWithRetry(letter, user);
+        }, RETRY_DELAY_MINUTES, TimeUnit.MINUTES);
     }
 }
