@@ -59,7 +59,7 @@ public class AuthCheckController {
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(chatGptService.recommendNickname())
+                .information(authCheckService.recommendNickname())
                 .build();
 
         return ResponseEntity.ok(apiResponse);
