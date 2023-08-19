@@ -14,12 +14,14 @@ import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.global.DefaultAssert;
 import depth.mvp.ieum.global.config.ChatGptConfig;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -138,7 +140,13 @@ public class LetterGptService {
         // GPT API 비동기 호출
         CompletableFuture.runAsync(() -> {
             LetterRes letterRes = chatGptService.sendLetter(letterFromUser);
-            mailService.sendEmailToReceiver(user.getEmail());
+            try {
+                mailService.sendEmailToReceiver(user.getEmail());
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
             Letter letterFromGpt = Letter.builder()
                     .receiver(user)
                     .title(letterRes.getData().substring(0,8))
@@ -181,7 +189,13 @@ public class LetterGptService {
         // GPT API 비동기 호출
         CompletableFuture.runAsync(() -> {
             LetterRes letterRes = chatGptService.replyLetter(letterFromUser, gptMessageList);
-            mailService.sendEmailToReceiver(user.getEmail());
+            try {
+                mailService.sendEmailToReceiver(user.getEmail());
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
             Letter letterFromGpt = Letter.builder()
                     .receiver(user)
                     .title(letterRes.getData().substring(0,8) + "..")

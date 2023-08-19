@@ -1,12 +1,16 @@
 package depth.mvp.ieum.domain.verify.presentation;
 
+import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.verify.application.VerifyService;
 import depth.mvp.ieum.domain.verify.dto.SendEmailReq;
 import depth.mvp.ieum.global.payload.ApiResponse;
 import depth.mvp.ieum.global.payload.Message;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.UnsupportedEncodingException;
 
 @RestController
 @RequiredArgsConstructor
@@ -14,11 +18,12 @@ import org.springframework.web.bind.annotation.*;
 public class VerifyController {
 
     private final VerifyService verifyService;
+    private final MailService mailService;
 
     // 인증 코드 발송
     @PostMapping("/send")
     public ResponseEntity<?> sendVerifyCode(
-            @RequestBody SendEmailReq sendEmailReq) {
+            @RequestBody SendEmailReq sendEmailReq) throws MessagingException, UnsupportedEncodingException {
 
         verifyService.sendVerifyCode(sendEmailReq.getEmail());
 
@@ -40,6 +45,21 @@ public class VerifyController {
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
                 .information(Message.builder().message("성공적으로 인증되었어요!").build())
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    @PostMapping("/send/{email}")
+    public ResponseEntity<?> sendEmail(
+            @PathVariable(value = "email") String email
+    ) throws MessagingException, UnsupportedEncodingException {
+
+        mailService.sendEmailToReceiver(email);
+
+        ApiResponse apiResponse = ApiResponse.builder()
+                .check(true)
+                .information(Message.builder().message("인증코드가 발급되었습니다.").build())
                 .build();
 
         return ResponseEntity.ok(apiResponse);

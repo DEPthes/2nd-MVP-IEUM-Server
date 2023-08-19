@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+        .email {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 64px;
+        }
+
+        img {
+            width: 149px;
+            height: 113px;
+            padding-bottom: 35px;
+        }
+
+        h1 {
+            padding-bottom: 30px;
+            font-weight: 700;
+            line-height: 140%;
+            font-size: 28.43px;
+        }
+
+        .content {
+            font-size: 21.328px;
+            font-weight: 600;
+            line-height: 150%;
+            padding-bottom: 15px;
+        }
+
+        .check {
+            font-size: 28.43px;
+            font-weight: 700;
+            line-height: 140%;
+        }
+
+        @media (max-width: 800px) {
+            .email {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 64px;
+            }
+            img {
+                width: 106px;
+                height: 81px;
+                padding-bottom: 35px;
+            }
+            h1 {
+                padding-bottom: 30px;
+                font-weight: 700;
+                line-height: 140%;
+                font-size: 16px;
+            }
+            .content {
+                font-size: 12.003px;
+                font-weight: 600;
+                line-height: 150%;
+            }
+            .check {
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 140%;
+            }
+        }
+    </style>
+</head>
+<body style="background-color: #fffcf7">
+<div class="email">
+    <img src="https://ieum.vercel.app/_next/image?url=%2Fimgs%2Flogo2.png&w=256&q=75" alt="ieum logo" />
+    <h1>[이:음] 인증번호가 발급되었습니다.</h1>
+    <div class="content">
+        안녕하세요. 이:음입니다.<br />
+        익명으로 마음을 전하는 랜덤 익명 편지 서비스, 이:음을 이용해 주셔서 감사합니다.<br />
+        아래 인증번호를 입력하여 이메일 인증을 완료해 주세요. 개인정보 보호를 위해 인증번호는 최대 3분동안 유효합니다.
+    </div>
+    <div>인증번호: <span class="check" th:text="${code}"></span></div>
+</div>
+</body>
+</html>

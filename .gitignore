@@ -36,7 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-/src/main/resources
 /src/main/resources/auth/
 /src/main/resources/database/
 ### MAC ###
