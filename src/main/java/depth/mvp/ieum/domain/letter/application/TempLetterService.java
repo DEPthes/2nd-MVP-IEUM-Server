@@ -31,22 +31,37 @@ public class TempLetterService {
     public LetterRes writeTempLetter(Long userId, LetterReq letterReq) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-        Letter originalLetter = letterRepository.findById(letterReq.getOriginalLetterId())
-                .orElseThrow();
         User receiver = getReceiver(user, letterReq.getOriginalLetterId());
 
         Letter letter;
-        if (originalLetter.isGPT()) {
-            letter = Letter.builder()
-                    .sender(user)
-                    .receiver(receiver)
-                    .title(letterReq.getTitle())
-                    .contents(letterReq.getContents())
-                    .envelopType(letterReq.getEnvelopType())
-                    .isRead(false)
-                    .isGPT(true)
-                    .letterType(LetterType.TEMP)
-                    .build();
+        // 답장
+        if (letterReq.getOriginalLetterId() != null) {
+            Letter originalLetter = letterRepository.findById(letterReq.getOriginalLetterId())
+                    .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
+            // 챗지피티에게 답장
+            if (originalLetter.isGPT()) {
+                letter = Letter.builder()
+                        .sender(user)
+                        .receiver(receiver)
+                        .title(letterReq.getTitle())
+                        .contents(letterReq.getContents())
+                        .envelopType(letterReq.getEnvelopType())
+                        .isRead(false)
+                        .isGPT(true)
+                        .letterType(LetterType.TEMP)
+                        .build();
+            } else {
+                letter = Letter.builder()
+                        .sender(user)
+                        .receiver(receiver)
+                        .title(letterReq.getTitle())
+                        .contents(letterReq.getContents())
+                        .envelopType(letterReq.getEnvelopType())
+                        .isRead(false)
+                        .isGPT(false)
+                        .letterType(LetterType.TEMP)
+                        .build();
+            }
         } else {
             letter = Letter.builder()
                     .sender(user)
