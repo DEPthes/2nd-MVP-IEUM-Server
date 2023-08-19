@@ -51,14 +51,15 @@ public class LetterGptService {
         DefaultAssert.isTrue(user.isPresent(), "유저가 올바르지 않습니다.");
         User findUser = user.get();
 
-        // 수신인은 gpt이므로 receiver는 null, isRead는 true로 생성
-        // 추가) 발송되는 편지이므로 LetterType.SENT 지정
+        // 수신인은 gpt이므로 receiver는 null, isRead는 true로 생성, isGPT true로 생성
+        // 추가) LetterType.SENT 지정
         Letter letter = Letter.builder()
                 .sender(findUser)
                 .title(letterReq.getTitle())
                 .contents(letterReq.getContents())
                 .envelopType(letterReq.getEnvelopType())
                 .letterType(LetterType.SENT)
+                .isGPT(true)
                 .isRead(true)
                 .build();
 
@@ -80,6 +81,7 @@ public class LetterGptService {
                 .contents(letterReq.getContents())
                 .envelopType(letterReq.getEnvelopType())
                 .letterType(LetterType.SENT)
+                .isGPT(true)
                 .isRead(true)
                 .build();
 
@@ -160,6 +162,7 @@ public class LetterGptService {
                     .contents(letterRes.getData())
                     .envelopType(letterFromUser.getEnvelopType())
                     .letterType(LetterType.SENT)   // LetterType.SENT 지정
+                    .isGPT(true)
                     .isRead(false)
                     .build();
             letterRepository.save(letterFromGpt);
@@ -209,6 +212,7 @@ public class LetterGptService {
                     .contents(letterRes.getData())
                     .envelopType(letterFromUser.getEnvelopType())
                     .letterType(LetterType.SENT)   // LetterType.SENT 지정
+                    .isGPT(true)
                     .isRead(false)
                     .build();
             letterRepository.save(letterFromGpt);

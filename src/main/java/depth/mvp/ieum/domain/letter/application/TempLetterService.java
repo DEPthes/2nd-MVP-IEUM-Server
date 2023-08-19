@@ -29,21 +29,36 @@ public class TempLetterService {
 
     @Transactional
     public LetterRes writeTempLetter(Long userId, LetterReq letterReq) {
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+        Letter originalLetter = letterRepository.findById(letterReq.getOriginalLetterId())
+                .orElseThrow();
         User receiver = getReceiver(user, letterReq.getOriginalLetterId());
 
-        Letter letter = Letter.builder()
-                .sender(user)
-                .receiver(receiver)
-                .title(letterReq.getTitle())
-                .contents(letterReq.getContents())
-                .envelopType(letterReq.getEnvelopType())
-                .isRead(false)
-                .letterType(LetterType.TEMP)
-                .build();
-
+        Letter letter;
+        if (originalLetter.isGPT()) {
+            letter = Letter.builder()
+                    .sender(user)
+                    .receiver(receiver)
+                    .title(letterReq.getTitle())
+                    .contents(letterReq.getContents())
+                    .envelopType(letterReq.getEnvelopType())
+                    .isRead(false)
+                    .isGPT(true)
+                    .letterType(LetterType.TEMP)
+                    .build();
+        } else {
+            letter = Letter.builder()
+                    .sender(user)
+                    .receiver(receiver)
+                    .title(letterReq.getTitle())
+                    .contents(letterReq.getContents())
+                    .envelopType(letterReq.getEnvelopType())
+                    .isRead(false)
+                    .isGPT(false)
+                    .letterType(LetterType.TEMP)
+                    .build();
+        }
         letterRepository.save(letter);
         return convertLetterToLetterRes(letter);
     }
@@ -52,7 +67,7 @@ public class TempLetterService {
     // 신규 작성
     public List<TempLetterRes> getNewTempLetters(Long userId) {
         List<TempLetterRes> newTempLetters = new ArrayList<>();
-        List<Letter> letters = letterRepository.findBySender_IdAndLetterType(userId, LetterType.TEMP);
+        List<Letter> letters = letterRepository.findBySender_IdAndIsGPTAndLetterType(userId, false, LetterType.TEMP);
 
         for (Letter letter : letters) {
             boolean isReceiverNull = (letter.getReceiver() == null);
@@ -66,13 +81,26 @@ public class TempLetterService {
     }
 
     // 답장
-    public List<TempLetterRes> getReplyTempLetters(Long userId) {
-        List<TempLetterRes> replyTempLetters = new ArrayList<>();
-        List<Letter> letters = letterRepository.findBySender_IdAndLetterType(userId, LetterType.TEMP);
+    public List<TempLetterRes> getReplyTempLetters(Long userId, Long originalLetterId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+        Letter originalLetter = letterRepository.findById(originalLetterId)
+                .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
+        validateOriginalLetterReceiver(originalLetter, user);
 
-        for (Letter letter : letters) {
-            boolean isReceiverNull = (letter.getReceiver() == null);
-            if (!isReceiverNull) {
+        List<TempLetterRes> replyTempLetters = new ArrayList<>();
+
+        if (originalLetter.isGPT()) {   // chatgpt 답장
+            List<Letter> letters = letterRepository.findBySender_IdAndIsGPTAndLetterType(userId, true, LetterType.TEMP);
+            for (Letter letter : letters) {
+                TempLetterRes tempLetterRes = createTempLetterRes(letter);
+                replyTempLetters.add(tempLetterRes);
+            }
+        }
+        else {    // 일반 답장
+            Long receiverId = originalLetter.getSender().getId();
+            List<Letter> letters = letterRepository.findBySender_IdAndReceiver_IdAndLetterType(userId, receiverId, LetterType.TEMP);
+
+            for (Letter letter : letters) {
                 TempLetterRes tempLetterRes = createTempLetterRes(letter);
                 replyTempLetters.add(tempLetterRes);
             }
@@ -101,9 +129,11 @@ public class TempLetterService {
         // (임시저장) 편지 답장
         Letter originalLetter = letterRepository.findById(letterId)
                 .orElseThrow(() -> new EntityNotFoundException("원본 편지를 찾을 수 없습니다."));
-
         validateOriginalLetterReceiver(originalLetter, user);
-
+        // 챗지피티의 경우
+        if (originalLetter.getSender() == null) {
+            return null;
+        }
         // 원본 편지 정보에서 발신인 id를 찾아 수신인으로 설정
         return userRepository.findById(originalLetter.getSender().getId())
                 .orElseThrow(() -> new EntityNotFoundException("수신인을 찾을 수 없습니다."));

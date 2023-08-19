@@ -69,8 +69,8 @@ public class LetterController {
 
     // 답장
     @GetMapping("/temp-reply")
-    public ResponseEntity<?> getReplyTempLetters(@CurrentUser UserPrincipal userPrincipal) {
-        List<TempLetterRes> tempLetterRes = tempLetterService.getReplyTempLetters(userPrincipal.getId());
+    public ResponseEntity<?> getReplyTempLetters(@CurrentUser UserPrincipal userPrincipal, @RequestParam Long letterId) {
+        List<TempLetterRes> tempLetterRes = tempLetterService.getReplyTempLetters(userPrincipal.getId(), letterId);
 
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
