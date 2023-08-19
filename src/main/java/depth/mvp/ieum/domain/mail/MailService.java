@@ -1,21 +1,30 @@
 package depth.mvp.ieum.domain.mail;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
-@RequiredArgsConstructor
+
 @Transactional(readOnly = true)
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class MailService {
 
     private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
     private static final int VERIFY_CODE_LENTH = 6;
+    private static final String REDIRECT_URL = "https://ieum.vercel.app";
 
     // 이메일로 인증 번호 보내기
 
@@ -24,21 +33,17 @@ public class MailService {
      * @param email 인증 번호를 보낼 이메일
      * @return 생성된 인증 코드
      */
-    public String sendVerifyCode(String email) {
+    public String sendVerifyCode(String email) throws MessagingException, UnsupportedEncodingException {
 
-        SimpleMailMessage message = new SimpleMailMessage();
+//        SimpleMailMessage message = new SimpleMailMessage();
+
+        MimeMessage message = mailSender.createMimeMessage();
         String randomeCode = generateRandomCode();
 
-        message.setTo(email);
-        message.setFrom("depth.ieum@gmail.com");
+        message.addRecipients(MimeMessage.RecipientType.TO, email);
+        message.setFrom(new InternetAddress("depth.ieum@gmail.com", "이:음"));
         message.setSubject("[이:음] 인증번호가 발급되었습니다.");
-        message.setText(String.format("안녕하세요. 이:음입니다.\n" +
-                "\n" +
-                "익명으로 마음을 전하는 랜덤 익명 편지 서비스, 이:음 이용해 주셔서 감사합니다.\n" +
-                "\n" +
-                "아래 인증번호를 입력하여 이메일 인증을 완료해 주세요. 개인정보 보호를 위해 인증번호는 최대 3분동안 유효합니다.\n"+
-                "\n" +
-                "인증번호: "+ randomeCode));
+        message.setText(setVerifyContext(randomeCode), "utf-8", "html");  // 내용설정
 
         mailSender.send(message);
         return randomeCode;
@@ -63,16 +68,27 @@ public class MailService {
         return codeBuilder.toString();
     }
 
-    public void sendEmailToReceiver(String email) {
-        SimpleMailMessage message = new SimpleMailMessage();
+    public void sendEmailToReceiver(String email) throws MessagingException, UnsupportedEncodingException {
 
-        message.setTo(email);
-        message.setFrom("depth.ieum@gmail.com");
+        MimeMessage message = mailSender.createMimeMessage();
+
+        message.addRecipients(MimeMessage.RecipientType.TO, email);
+        message.setFrom(new InternetAddress("depth.ieum@gmail.com", "이:음"));
         message.setSubject("[이:음] 마음을 담은 편지가 도착했어요!");
-        message.setText(String.format("누군가의 마음이 담긴 편지가 도착했어요.\n" +
-                "\n" +
-                "지금 바로 확인하시고, 내 마음도 전달해보세요.\n"));
+        message.setText(setMailContext(), "utf-8", "html");  // 내용설정
 
         mailSender.send(message);
+    }
+
+    private String setVerifyContext(String code) { // 타임리프 설정하는 코드
+        Context context = new Context();
+        context.setVariable("code", code); // Template에 전달할 데이터 설정
+        return templateEngine.process("verify", context); // verify.html
+    }
+
+    private String setMailContext() { // 타임리프 설정하는 코드
+        Context context = new Context();
+        context.setVariable("link", MailService.REDIRECT_URL); // Template에 전달할 데이터 설정
+        return templateEngine.process("mail", context); // mail.html
     }
 }

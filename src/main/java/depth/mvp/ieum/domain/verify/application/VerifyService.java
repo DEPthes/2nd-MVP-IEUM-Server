@@ -5,11 +5,13 @@ import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
 import depth.mvp.ieum.domain.verify.domain.Verify;
 import depth.mvp.ieum.domain.verify.domain.repository.VerifyRepository;
 import depth.mvp.ieum.global.DefaultAssert;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -29,9 +31,7 @@ public class VerifyService {
      * @param targetEmail 인증 코드를 전송할 이메일
      */
     @Transactional
-    public void sendVerifyCode(String targetEmail) {
-
-        DefaultAssert.isTrue(userRepository.existsByEmail(targetEmail), "이메일이 올바르지 않습니다.");
+    public void sendVerifyCode(String targetEmail) throws MessagingException, UnsupportedEncodingException {
 
         // mailService를 이용해 해당 이메일로 인증코드를 보낸다.
         String randomCode = mailService.sendVerifyCode(targetEmail);

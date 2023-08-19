@@ -8,11 +8,13 @@ import depth.mvp.ieum.domain.letter.dto.TempLetterRes;
 import depth.mvp.ieum.global.config.security.token.CurrentUser;
 import depth.mvp.ieum.global.config.security.token.UserPrincipal;
 import depth.mvp.ieum.global.payload.ApiResponse;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class LetterController {
 
     @PostMapping("/send")
     public ResponseEntity<?> writeLetter(@CurrentUser UserPrincipal userPrincipal,
-                                         @Valid @RequestBody LetterReq letterReq) {
+                                         @Valid @RequestBody LetterReq letterReq) throws MessagingException, UnsupportedEncodingException {
         LetterRes letterRes = letterService.writeLetter(userPrincipal.getId(), letterReq);
 
         ApiResponse apiResponse = ApiResponse.builder()

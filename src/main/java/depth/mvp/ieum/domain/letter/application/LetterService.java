@@ -8,11 +8,13 @@ import depth.mvp.ieum.domain.letter.dto.LetterRes;
 import depth.mvp.ieum.domain.mail.MailService;
 import depth.mvp.ieum.domain.user.domain.User;
 import depth.mvp.ieum.domain.user.domain.repository.UserRepository;
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Random;
 
@@ -26,7 +28,7 @@ public class LetterService {
 
     // 편지 작성
     @Transactional
-    public LetterRes writeLetter(Long userId, LetterReq letterReq) {
+    public LetterRes writeLetter(Long userId, LetterReq letterReq) throws MessagingException, UnsupportedEncodingException {
         User user = userRepository.findById(userId)
                 .orElseThrow();
         User receiver;
@@ -53,7 +55,7 @@ public class LetterService {
     }
 
     // 메일 발송
-    protected void sendEmailToReceiver(String email) {
+    protected void sendEmailToReceiver(String email) throws MessagingException, UnsupportedEncodingException {
         mailService.sendEmailToReceiver(email);
     }
 
@@ -79,7 +81,7 @@ public class LetterService {
     }
 
     // 임시 저장된 편지 발송
-    private Letter writeTempLetter(User user, LetterReq letterReq) {
+    private Letter writeTempLetter(User user, LetterReq letterReq) throws MessagingException, UnsupportedEncodingException {
         Letter tempLetter = letterRepository.findById(letterReq.getLetterId())
                 .orElseThrow(() -> new EntityNotFoundException("편지를 찾을 수 없습니다."));
         User receiver = tempLetter.getReceiver();

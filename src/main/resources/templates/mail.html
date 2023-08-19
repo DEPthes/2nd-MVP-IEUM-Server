@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+</head>
+<body style="background-color: #fffcf7">
+<div class="email" style="display: flex; flex-direction: column; align-items: flex-start; padding: 64px">
+    <img
+            src="https://ieum.vercel.app/_next/image?url=%2Fimgs%2Flogo2.png&w=256&q=75"
+            alt="ieum logo"
+            style="width: 149px; height: 113px; padding-bottom: 35px"
+    />
+    <h1 style="padding-bottom: 30px; font-weight: 700; line-height: 140%; font-size: 28.43px">
+        [이:음] 마음을 담은 편지가 도착했어요!
+    </h1>
+    <div class="content" style="font-size: 22px; font-weight: 600; line-height: 150%; padding-bottom: 15px">
+        누군가의 마음이 담긴 편지가 도착했어요. <br />
+        지금 바로 확인하시고, 내 마음도 전달해보세요. <br />
+    </div>
+    <div class="link" style="display: flex; align-items: center; gap: 5px; font-size: 22px; font-weight: bold">
+        <span>[링크]</span>
+        <a href="https://ieum.vercel.app" th:text="${link}" style="text-decoration: underline; color: black"
+        >https://ieum.vercel.app</a
+        >
+    </div>
+</div>
+</body>
+</html>
