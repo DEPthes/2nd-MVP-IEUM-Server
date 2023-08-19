@@ -36,6 +36,8 @@ public class Letter extends BaseEntity {
 
     private boolean isRead;
 
+    private boolean isGPT;   // 챗지피티가 보낸 편지, 챗지피티한테 보낸 편지일 경우 true
+
     @Enumerated(EnumType.STRING)
     private LetterType letterType;
 

@@ -45,6 +45,7 @@ public class LetterService {
                     .contents(letterReq.getContents())
                     .envelopType(letterReq.getEnvelopType())
                     .isRead(false)
+                    .isGPT(false)
                     .letterType(LetterType.SENT)
                     .build();
             letterRepository.save(letter);
