@@ -60,10 +60,10 @@ public class LetterGptController {
             @CurrentUser UserPrincipal userPrincipal,
             @Valid @RequestBody LetterCheckReq letterCheckReq) {
 
-        String checkResponse = letterGptService.checkLetter(userPrincipal, letterCheckReq);
+        int checkResponse = letterGptService.checkLetter(userPrincipal, letterCheckReq);
         ApiResponse apiResponse = ApiResponse.builder()
                 .check(true)
-                .information(LetterCheckRes.builder().prohibition(Integer.parseInt(checkResponse)).build())
+                .information(LetterCheckRes.builder().prohibition(checkResponse).build())
                 .build();
 
         return ResponseEntity.ok(apiResponse);

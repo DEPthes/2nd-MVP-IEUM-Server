@@ -68,6 +68,7 @@ public class ChatGptService {
         );
 
         String response = chatGptRes.getChoices().get(0).getMessage().getContent();
+        log.info(response);
         return RecommendRes.builder().nickname(createPrettyResponseForNickname(response)).build();
     }
 
@@ -105,7 +106,7 @@ public class ChatGptService {
         );
 
         String response = chatGptRes.getChoices().get(0).getMessage().getContent();
-
+        log.info(response);
         return LetterRes.builder().data(response).build();
     }
 
@@ -136,7 +137,7 @@ public class ChatGptService {
         );
 
         String response = chatGptRes.getChoices().get(0).getMessage().getContent();
-
+        log.info(response);
         return LetterRes.builder().data(response).build();
     }
 
@@ -170,8 +171,9 @@ public class ChatGptService {
                         )
                 )
         );
-
-        return chatGptRes.getChoices().get(0).getMessage().getContent();
+        String response = chatGptRes.getChoices().get(0).getMessage().getContent();
+        log.info(response);
+        return response;
     }
 
     /**

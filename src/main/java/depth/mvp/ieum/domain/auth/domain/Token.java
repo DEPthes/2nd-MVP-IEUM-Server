@@ -39,6 +39,10 @@ public class Token extends BaseEntity {
     // 쿠키 (로그아웃 용) 생성 메서드
     public ResponseCookie generateSignOutCookie() {
         return ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .path("/")
                 .maxAge(1)
                 .build();
     }
