@@ -68,6 +68,7 @@ public class ChatGptConfig {
     // 편지 검사 관련 세팅
     public static final String settingForCheckLetter =
             """
+                    너는 부가적인 설명없이 답변으로 숫자 0 또는 1만 출력한다.
                     너는 감정적이고 예민한 사람이야. 너는 아래와 같은 내용의 글에 기분이 나빠지는 사람이야.
                     [기분이 나쁜 글의 내용]
                     1. 나를 모욕, 비난, 비방하는 단어 혹은 표현, 문장
