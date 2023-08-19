@@ -89,12 +89,19 @@ public class LetterGptService {
 
 
     // gpt를 통한 편지 검사
-    public String checkLetter(UserPrincipal userPrincipal, LetterCheckReq letterCheckReq) {
+    public int checkLetter(UserPrincipal userPrincipal, LetterCheckReq letterCheckReq) {
 
         Optional<User> user = userRepository.findById(userPrincipal.getId());
         DefaultAssert.isTrue(user.isPresent(), "유저가 올바르지 않습니다.");
-
-        return chatGptService.checkLetter(letterCheckReq);
+        int result = 0;
+        try {
+            result = Integer.parseInt(chatGptService.checkLetter(letterCheckReq));
+        } catch (HttpClientErrorException.TooManyRequests ex) {
+            log.info("API 호출 제한 발생");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     public static List<ChatGptMessage> createMessageList(List<Letter> letterList) {

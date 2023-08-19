@@ -22,11 +22,11 @@ public class ChatGptConfig {
     public static final String settingForNickname =
             """
                     당신은 저의 질문에 미사여구 없이 최대한 빠르게 답변만 해줍니다.
-                    답변 형식 = 닉네임1,닉네임2,닉네임3,닉네임4,닉네임5
+                    답변 형식 = 닉네임1,닉네임2,닉네임3,닉네임4,닉네임5,닉네임6,닉네임7,닉네임8,닉네임9,닉네임10,
                     """;
     public static final String nicknameQuestion1 =
             """
-                    조건에 따라 닉네임을 5개 추천해줘. ", "로 각각의 닉네임을 구분해줘.
+                    조건에 따라 닉네임을 10개 추천해줘. ", "로 각각의 닉네임을 구분해줘.
                     <조건>
                     1. 3~10글자의 한글로 구성되고 띄어쓰기는 없어야한다.
                     2. 형용사가 포함되어야 한다.
@@ -35,7 +35,7 @@ public class ChatGptConfig {
                     5. """;
     public static final String nicknameQuestion2 =
             """
-                    조건에 따라 닉네임을 5개 추천해줘. ", "로 각각의 닉네임을 구분해줘.
+                    조건에 따라 닉네임을 10개 추천해줘. ", "로 각각의 닉네임을 구분해줘.
                     <조건>
                     1. 3~10글자의 한글로 구성되고 띄어쓰기는 없어야한다.
                     2. 고유 형용사가 포함되어야 한다.
@@ -45,7 +45,7 @@ public class ChatGptConfig {
 
     public static final String nicknameQuestion3 =
             """
-                    조건에 따라 닉네임을 5개 추천해줘. ", "로 각각의 닉네임을 구분해줘.
+                    조건에 따라 닉네임을 10개 추천해줘. ", "로 각각의 닉네임을 구분해줘.
                     <조건>
                     1. 3~10글자의 한글로 구성되고 띄어쓰기는 없어야한다.
                     2. 상태 형용사와 음식 이름의 조합이다.

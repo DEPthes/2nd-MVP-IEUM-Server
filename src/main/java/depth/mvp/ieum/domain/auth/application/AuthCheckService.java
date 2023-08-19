@@ -44,8 +44,8 @@ public class AuthCheckService {
     public RecommendRes recommendNickname() {
         RecommendRes nicknameList = chatGptService.recommendNickname();
         log.info(String.valueOf(nicknameList.getNickname().size()));
-        if (nicknameList.getNickname().size() != 5) {
-            chatGptService.recommendNickname();
+        if (nicknameList.getNickname().size() != 10) {
+            nicknameList = chatGptService.recommendNickname();
         }
         return nicknameList;
     }
