@@ -30,22 +30,27 @@ public class MailBoxService {
     // 안 읽은 편지
     @Transactional
     public Page<MailBoxRes> getUnreadLetters(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Letter> unreadLettersPage = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, false, LetterType.SENT, pageable);
-        List<Letter> unreadLetters = unreadLettersPage.getContent();
-        List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(unreadLetters);
+        List<Letter> allUnreadLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT);
+        List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(allUnreadLetters);
 
-        return new PageImpl<>(mailBoxResList, pageable, unreadLettersPage.getTotalElements());
+        int startIndex = (int) PageRequest.of(page, size).getOffset();
+        int endIndex = Math.min(startIndex + size, mailBoxResList.size());
+
+        List<MailBoxRes> pagedMailBoxResList = mailBoxResList.subList(startIndex, endIndex);
+        return new PageImpl<>(pagedMailBoxResList, PageRequest.of(page, size), mailBoxResList.size());
     }
 
     @Transactional
     public Page<MailBoxRes> getReadLetters(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Letter> readLettersPage = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT, pageable);
-        List<Letter> readLetters = readLettersPage.getContent();
-        List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(readLetters);
+        List<Letter> allReadLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT);
+        List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(allReadLetters);
 
-        return new PageImpl<>(mailBoxResList, pageable, readLettersPage.getTotalElements());
+        int startIndex = (int) PageRequest.of(page, size).getOffset();
+        int endIndex = Math.min(startIndex + size, mailBoxResList.size());
+
+        List<MailBoxRes> pagedMailBoxResList = mailBoxResList.subList(startIndex, endIndex);
+        return new PageImpl<>(pagedMailBoxResList, PageRequest.of(page, size), mailBoxResList.size());
+
     }
 
     // 편지 상세 조회(읽음 여부 true 변경)
