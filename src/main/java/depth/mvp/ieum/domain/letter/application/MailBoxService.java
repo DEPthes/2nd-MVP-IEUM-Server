@@ -8,6 +8,7 @@ import depth.mvp.ieum.domain.letter.dto.MailBoxRes;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,19 +29,23 @@ public class MailBoxService {
     // 우체통 - 받은 편지 리스트로 조회
     // 안 읽은 편지
     @Transactional
-    public List<MailBoxRes> getUnreadLetters(Long userId, int page, int size) {
+    public Page<MailBoxRes> getUnreadLetters(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Letter> unreadLettersPage = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, false, LetterType.SENT, pageable);
         List<Letter> unreadLetters = unreadLettersPage.getContent();
-        return convertLettersToMailBoxResList(unreadLetters);
+        List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(unreadLetters);
+
+        return new PageImpl<>(mailBoxResList, pageable, unreadLettersPage.getTotalElements());
     }
 
     @Transactional
-    public List<MailBoxRes> getReadLetters(Long userId, int page, int size) {
+    public Page<MailBoxRes> getReadLetters(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Letter> readLettersPage = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT, pageable);
         List<Letter> readLetters = readLettersPage.getContent();
-        return convertLettersToMailBoxResList(readLetters);
+        List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(readLetters);
+
+        return new PageImpl<>(mailBoxResList, pageable, readLettersPage.getTotalElements());
     }
 
     // 편지 상세 조회(읽음 여부 true 변경)
