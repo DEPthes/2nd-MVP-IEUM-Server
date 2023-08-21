@@ -49,19 +49,4 @@ public class VerifyController {
 
         return ResponseEntity.ok(apiResponse);
     }
-
-    @PostMapping("/send/{email}")
-    public ResponseEntity<?> sendEmail(
-            @PathVariable(value = "email") String email
-    ) throws MessagingException, UnsupportedEncodingException {
-
-        mailService.sendEmailToReceiver(email);
-
-        ApiResponse apiResponse = ApiResponse.builder()
-                .check(true)
-                .information(Message.builder().message("인증코드가 발급되었습니다.").build())
-                .build();
-
-        return ResponseEntity.ok(apiResponse);
-    }
 }
