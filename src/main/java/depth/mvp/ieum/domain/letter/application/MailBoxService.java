@@ -30,7 +30,7 @@ public class MailBoxService {
     // 안 읽은 편지
     @Transactional
     public Page<MailBoxRes> getUnreadLetters(Long userId, int page, int size) {
-        List<Letter> allUnreadLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, true, LetterType.SENT);
+        List<Letter> allUnreadLetters = letterRepository.findByReceiver_IdAndIsReadAndLetterType(userId, false, LetterType.SENT);
         List<MailBoxRes> mailBoxResList = convertLettersToMailBoxResList(allUnreadLetters);
 
         int startIndex = (int) PageRequest.of(page, size).getOffset();
