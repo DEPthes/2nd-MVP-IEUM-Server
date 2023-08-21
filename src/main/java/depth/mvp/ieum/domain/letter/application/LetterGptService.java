@@ -149,13 +149,6 @@ public class LetterGptService {
         // GPT API 비동기 호출
         CompletableFuture.runAsync(() -> {
             LetterRes letterRes = chatGptService.sendLetter(letterFromUser);
-            try {
-                mailService.sendEmailToReceiver(user.getEmail());
-            } catch (MessagingException e) {
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
             Letter letterFromGpt = Letter.builder()
                     .receiver(user)
                     .title(letterRes.getData().substring(0,8))
@@ -166,6 +159,13 @@ public class LetterGptService {
                     .isRead(false)
                     .build();
             letterRepository.save(letterFromGpt);
+            try {
+                mailService.sendEmailToReceiver(user.getEmail());
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
@@ -199,13 +199,6 @@ public class LetterGptService {
         // GPT API 비동기 호출
         CompletableFuture.runAsync(() -> {
             LetterRes letterRes = chatGptService.replyLetter(letterFromUser, gptMessageList);
-            try {
-                mailService.sendEmailToReceiver(user.getEmail());
-            } catch (MessagingException e) {
-                throw new RuntimeException(e);
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
             Letter letterFromGpt = Letter.builder()
                     .receiver(user)
                     .title(letterRes.getData().substring(0,8) + "..")
@@ -216,6 +209,13 @@ public class LetterGptService {
                     .isRead(false)
                     .build();
             letterRepository.save(letterFromGpt);
+            try {
+                mailService.sendEmailToReceiver(user.getEmail());
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
         });
     }
 
