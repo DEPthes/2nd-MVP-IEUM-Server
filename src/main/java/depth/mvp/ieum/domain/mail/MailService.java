@@ -24,7 +24,7 @@ public class MailService {
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
     private static final int VERIFY_CODE_LENTH = 6;
-    private static final String REDIRECT_URL = "https://ieum.vercel.app";
+    private static final String REDIRECT_URL = "https://ieum.depth-mju.co.kr/";
 
     // 이메일로 인증 번호 보내기
 
